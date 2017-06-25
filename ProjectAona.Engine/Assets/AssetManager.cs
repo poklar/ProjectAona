@@ -38,7 +38,7 @@ namespace ProjectAona.Engine.Assets
         {
             try
             {
-                TestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex");
+                TestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex"); 
 
                 DefaultFont = Game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
             }
