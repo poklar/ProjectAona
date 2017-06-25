@@ -43,11 +43,19 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\AssetManager.cs" />
+    <Compile Include="Assets\StaticData.cs" />
+    <Compile Include="Chunk\Chunk.cs" />
+    <Compile Include="Chunk\ChunkManager.cs" />
+    <Compile Include="Chunk\ChunkStorage.cs" />
+    <Compile Include="Chunk\Generators\TestTerrain.cs" />
+    <Compile Include="Core\Config\ChunkConfig.cs" />
     <Compile Include="Core\Config\EngineConfig.cs" />
     <Compile Include="Core\Config\GraphicsConfig.cs" />
     <Compile Include="Core\Engine.cs" />
     <Compile Include="Graphics\GraphicsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\WorldSettings.cs" />
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileType.cs" />
   </ItemGroup>

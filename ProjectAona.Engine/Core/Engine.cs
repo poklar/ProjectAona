@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Core.Config;
 using System;
 
@@ -63,8 +64,7 @@ namespace ProjectAona.Engine.Core
 
         private void AddComponents()
         {
-            
-
+            Game.Components.Add(new AssetManager(Game));
         }
 
         /// <summary>

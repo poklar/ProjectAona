@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ProjectAona.Engine.Core.Config
+﻿namespace ProjectAona.Engine.Core.Config
 {
     /// <summary>
     /// Holds the configuration parameters to be used by the engine.
     /// </summary>
     public class EngineConfig
     {
+        /// <summary>
+        /// Holds the chunk configuration parameters.
+        /// </summary>
+        /// <value>
+        /// The chunk.
+        /// </value>
+        public ChunkConfig Chunk { get; private set; }
+
         /// <summary>
         /// Holds graphics related configuration parameters.
         /// </summary>
@@ -19,8 +21,12 @@ namespace ProjectAona.Engine.Core.Config
         /// </value>
         public GraphicsConfig Graphics { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EngineConfig"/> class.
+        /// </summary>
         public EngineConfig()
         {
+            Chunk = new ChunkConfig();
             Graphics = new GraphicsConfig();
         }
 
@@ -30,6 +36,9 @@ namespace ProjectAona.Engine.Core.Config
         /// <returns></returns>
         internal bool Validate()
         {
+            if (!Chunk.Validate())
+                return false;
+
             if (!Graphics.Validate())
                 return false;
 

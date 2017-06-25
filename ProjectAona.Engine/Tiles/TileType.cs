@@ -11,6 +11,7 @@ namespace ProjectAona.Engine.Tiles
         None,
         Grass,
         Water,
-        Mud
+        Dirt,
+        Stone
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ProjectAona.Engine.Assets;
 
 namespace ProjectAona.Engine.Tiles
 {
@@ -7,16 +9,17 @@ namespace ProjectAona.Engine.Tiles
     /// </summary>
     public class Tile
     {
-        private TileType _tileType = TileType.None;
+        private TileType _tileType;
         private Vector2 _position;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Tile"/> class.
         /// </summary>
         /// <param name="position">The position.</param>
-        public Tile(Vector2 position)
+        public Tile(Vector2 position, TileType tileType)
         {
             _position = position;
+            _tileType = tileType;
         }
 
         /// <summary>
@@ -41,6 +44,11 @@ namespace ProjectAona.Engine.Tiles
         {
             get { return _tileType; }
             set { _tileType = value; }
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Vector2 cameraPosition)
+        {
+            spriteBatch.Draw(StaticData.StoneTexture, Position - cameraPosition, Color.White);
         }
     }
 }
