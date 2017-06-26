@@ -1,0 +1,8 @@
+ToDo:
+Get my hands dirty with procedural generation for my tiles. This will take a while since I'm completly new to this.
+
+----------------
+26-06-2017
+version: 0.1
+
+Chunk creation works now.
