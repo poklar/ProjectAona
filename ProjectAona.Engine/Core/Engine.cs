@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using ProjectAona.Engine.Assets;
+using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Core.Config;
+using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Input;
+using ProjectAona.Engine.Tiles;
 using System;
 
 namespace ProjectAona.Engine.Core
@@ -62,9 +66,18 @@ namespace ProjectAona.Engine.Core
                 handler(typeof(Engine), e);
         }
 
+        /// <summary>
+        /// Adds the components.
+        /// </summary>
         private void AddComponents()
         {
+            Game.Components.Add(new InputManager(Game));
             Game.Components.Add(new AssetManager(Game));
+            Game.Components.Add(new ChunkManager(Game));
+            Game.Components.Add(new TileTexture(Game));
+            Game.Components.Add(new Camera(Game));
+            Game.Components.Add(new ChunkStorage(Game));
+            Game.Components.Add(new ChunkCache(Game));
         }
 
         /// <summary>
@@ -97,10 +110,13 @@ namespace ProjectAona.Engine.Core
 
         public void Dispose()
         {
-            Dispose(true); // Object being disposed by the code itself, dispose both managed and unmanaged objects.
-            GC.SuppressFinalize(this); // Take object out the finalization queue to prevent finalization code for it from executing a second time.
+            // Object being disposed by the code itself, dispose both managed and unmanaged objects
+            Dispose(true);
+            // Take object out the finalization queue to prevent finalization code for it from executing a second time
+            GC.SuppressFinalize(this); 
         }
 
-        ~Engine() { Dispose(false); } // finalizer called by the runtime. we should only dispose unmanaged objects and should NOT reference managed ones. 
+        // finalizer called by the runtime. we should only dispose unmanaged objects and should NOT reference managed ones
+        ~Engine() { Dispose(false); } 
     }
 }

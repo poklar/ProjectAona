@@ -15,19 +15,31 @@ namespace ProjectAona.Engine.Chunk
         /// </value>
         public Point WorldQuadrant { get; private set; }
 
+        /// <summary>
+        /// Gets the position of the tile.
+        /// </summary>
+        /// <value>
+        /// The position.
+        /// </value>
         public Vector2 Position { get; private set; }
 
+        /// <summary>
+        /// Gets the tiles.
+        /// </summary>
+        /// <value>
+        /// The tiles.
+        /// </value>
         public Tile[,] Tiles { get; private set; }
 
         /// <summary>
         /// The chunk width in tiles.
         /// </summary>
-        public static int WidthInTiles = Core.Engine.Instance.Configuration.Chunk.WidthInTiles;
+        public int WidthInTiles { get; private set; }
 
         /// <summary>
         /// The chunk height in tiles.
         /// </summary>
-        public static int HeightInTiles = Core.Engine.Instance.Configuration.Chunk.HeightInTiles;
+        public int HeightInTiles { get; private set; }
 
         /// <summary>
         /// Gets or sets the tile size in pixels.
@@ -53,47 +65,45 @@ namespace ProjectAona.Engine.Chunk
         /// </value>
         public int HeightInPixels { get { return TileSizeInPixels * HeightInTiles; } }
 
-        public Chunk(int width, int height, Point worldQuadrant, int tileSizeInPixels)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Chunk"/> class.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <param name="tileSizeInPixels">The tile size in pixels.</param>
+        public Chunk(Point worldQuadrant, int tileSizeInPixels = 32)
         {
-            WidthInTiles = width;
-            HeightInTiles = height;
+            // Setters
+            WidthInTiles = Core.Engine.Instance.Configuration.Chunk.WidthInTiles;
+            HeightInTiles = Core.Engine.Instance.Configuration.Chunk.HeightInTiles;
             WorldQuadrant = worldQuadrant;
             Tiles = new Tile[WidthInTiles, HeightInTiles];
             TileSizeInPixels = tileSizeInPixels;
             Position = new Vector2(WidthInPixels * worldQuadrant.X, HeightInPixels * worldQuadrant.Y);
 
-            InitChunk();
+            InitializeChunk();
         }
 
-        private void InitChunk()
+        /// <summary>
+        /// Initializes the chunk.
+        /// </summary>
+        private void InitializeChunk()
         {
             for (int x = 0; x < WidthInTiles; x++)
             {
                 for (int y = 0; y < HeightInTiles; y++)
                 {
+                    // Create a new tile
                     Tiles[x, y] = new Tile(new Vector2(Position.X + x * TileSizeInPixels, Position.Y + y * TileSizeInPixels), TileType.None);
                 }
             }
         }
 
-        public Tile TileAt(int x, int y)
-        {
-            return Tiles[x, y];
-        }
-
-        public void Draw(SpriteBatch spriteBatch, Vector2 cameraPosition)
-        {
-            for (int x = 0; x < WidthInTiles; x++)
-            {
-                for (int y = 0; y < HeightInTiles; y++)
-                {
-                    Tiles[x, y].Draw(spriteBatch, cameraPosition);
-                }
-            }
-
-            spriteBatch.DrawString(StaticData.DefaultFont, "WorldQuadrant " + WorldQuadrant, Position - cameraPosition, Color.White);
-        }
-
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return "Chunk: " + Position;

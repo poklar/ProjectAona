@@ -4,17 +4,55 @@ using System;
 
 namespace ProjectAona.Engine.Assets
 {
+    /// <summary>
+    /// The asset manager.
+    /// </summary>
     public interface IAssetManager
     {
-        Texture2D TestTexture { get; }
+        /// <summary>
+        /// Gets the stone test texture.
+        /// </summary>
+        /// <value>
+        /// The stone test texture.
+        /// </value>
+        Texture2D StoneTestTexture { get; }
+
+        /// <summary>
+        /// Gets the default font.
+        /// </summary>
+        /// <value>
+        /// The default font.
+        /// </value>
+        SpriteFont DefaultFont { get; }
     }
 
+    /// <summary>
+    /// The asset manager.
+    /// </summary>
+    /// <seealso cref="Microsoft.Xna.Framework.GameComponent" />
+    /// <seealso cref="ProjectAona.Engine.Assets.IAssetManager" />
     public class AssetManager : GameComponent, IAssetManager
     {
-        public Texture2D TestTexture { get; private set; }
+        /// <summary>
+        /// Gets the stone test texture.
+        /// </summary>
+        /// <value>
+        /// The stone test texture.
+        /// </value>
+        public Texture2D StoneTestTexture { get; private set; }
 
+        /// <summary>
+        /// Gets the default font.
+        /// </summary>
+        /// <value>
+        /// The default font.
+        /// </value>
         public SpriteFont DefaultFont { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AssetManager"/> class.
+        /// </summary>
+        /// <param name="game">The game.</param>
         public AssetManager(Game game)
             : base(game)
         {
@@ -36,9 +74,10 @@ namespace ProjectAona.Engine.Assets
         /// </summary>
         public void LoadContent()
         {
+            // Set the content
             try
             {
-                TestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex"); 
+                StoneTestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex"); 
 
                 DefaultFont = Game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
             }

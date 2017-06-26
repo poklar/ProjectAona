@@ -1,149 +1,153 @@
 ﻿using Microsoft.Xna.Framework;
-using ProjectAona.Engine.Chunk.Generators;
-using System;
+using ProjectAona.Engine.Common;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ProjectAona.Engine.Chunk
 {
-    public interface IChunkStorage<T>
+    /// <summary>
+    /// Allows interaction with the chunk storage service.
+    /// </summary>
+    public interface IChunkStorage
     {
-        ITestTerrain<T> TestTerrain { get; set; }
-        
-        int MaxChunksInMemory { get; set; }
+        /// <summary>
+        /// Returns the chunk in given point coordinate (x, y).
+        /// </summary>
+        /// <value>
+        /// The <see cref="Chunk"/>.
+        /// </value>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        Chunk this[Point worldQuadrant] { get; set; }
 
-        IEnumerable<Point> QuadrantsCurrentlyInMemory { get; }
+        /// <summary>
+        /// Removes the chunk at given world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        bool Remove(Point worldQuadrant);
 
-        T GetChunkAt(Point worldQuadrant);
+        /// <summary>
+        /// Returns true if a chunk exists at given world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified world quadrant contains key; otherwise, <c>false</c>.
+        /// </returns>
+        bool ContainsKey(Point worldQuadrant);
 
-        void PreloadChunkAt(Point worldQuadrant);
+        /// <summary>
+        /// Returns total count of chunk stored.
+        /// </summary>
+        /// <value>
+        /// The count.
+        /// </value>
+        int Count { get; }
 
-        void UnloadChunkAt(Point worldQuadrant);
+        /// <summary>
+        /// Returns an enumarable list of keys stored.
+        /// </summary>
+        /// <value>
+        /// The keys.
+        /// </value>
+        IEnumerable<Point> Keys { get; }
 
-        IEnumerable<T> GetVisibleChunks(Rectangle viewPort);
+        /// <summary>
+        /// Returns an enumarable list of chunks stored.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
+        IEnumerable<Chunk> Values { get; }
     }
-
-    public class ChunkStorage : IChunkStorage<Chunk>
+    /// <summary>
+    /// Chunk storage that stores chunks within memory and can load & save chunks to disk.
+    /// </summary>
+    /// <seealso cref="Microsoft.Xna.Framework.GameComponent" />
+    /// <seealso cref="ProjectAona.Engine.Chunk.IChunkStorage" />
+    public class ChunkStorage : GameComponent, IChunkStorage
     {
-        private Dictionary<Point, Chunk> _chunks = new Dictionary<Point, Chunk>();
+        private readonly Dictionary<Point, Chunk> _dictionary = new Dictionary<Point, Chunk>();
 
-        public IEnumerable<Point> QuadrantsCurrentlyInMemory { get { return _chunks.Keys; } }
+        //private readonly IndexedDictionary<Chunk> _test;
 
-        public int MaxChunksInMemory { get; set; }
-
-        public ITestTerrain<Chunk> TestTerrain { get; set; }
-
-        private readonly int _chunkWidth, _chunkHeight;
-
-        public ChunkStorage(ITestTerrain<Chunk> testTerrain, int maxMapsInMemory = 16)
+        /// <summary>
+        /// Creates a new chunk storage instance which can hold chunks.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        public ChunkStorage(Game game)
+            : base(game)
         {
-            TestTerrain = testTerrain;
-            MaxChunksInMemory = maxMapsInMemory;
-            _chunkWidth = Core.Engine.Instance.Configuration.Chunk.WidthInTiles * 32; // 32 pixels
-            _chunkHeight = Core.Engine.Instance.Configuration.Chunk.HeightInTiles * 32; // 32 pixels
+            // Export service
+            Game.Services.AddService(typeof(IChunkStorage), this);
         }
 
-        public Chunk GetChunkAt(Point worldQuadrant)
+        /// <summary>
+        /// Returns the chunk in given point coordinate (x, y).
+        /// </summary>
+        /// <value>
+        /// The <see cref="Chunk"/>.
+        /// </value>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        public Chunk this[Point worldQuadrant]
         {
-            PreloadChunkAt(worldQuadrant);
-            return _chunks[worldQuadrant];
+            get { return _dictionary[worldQuadrant]; }
+            set { _dictionary[worldQuadrant] = value; }
         }
 
-        public void PreloadChunkAt(Point worldQuadrant)
+        /// <summary>
+        /// Removes the chunk at given world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        public bool Remove(Point worldQuadrant)
         {
-            if (!_chunks.ContainsKey(worldQuadrant))
-                LoadOrCreateMissingChunk(worldQuadrant);
+            return _dictionary.Remove(worldQuadrant);
         }
 
-        private void LoadOrCreateMissingChunk(Point worldQuadrant)
+        /// <summary>
+        /// Returns true if a chunk exists at given world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified world quadrant contains key; otherwise, <c>false</c>.
+        /// </returns>
+        public bool ContainsKey(Point worldQuadrant)
         {
-            Chunk chunk = null;
-
-            chunk = TestTerrain.BuildChunk(worldQuadrant);
-
-            _chunks.Add(worldQuadrant, chunk);
+            return _dictionary.ContainsKey(worldQuadrant);
         }
 
-        public void UnloadChunkAt(Point worldQuadrant)
+        /// <summary>
+        /// Returns total count of chunk stored.
+        /// </summary>
+        /// <value>
+        /// The count.
+        /// </value>
+        public int Count
         {
-            _chunks.Remove(worldQuadrant);
+            get { return _dictionary.Count; }
         }
 
-        public IEnumerable<Chunk> GetVisibleChunks(Rectangle viewPort)
+        /// <summary>
+        /// Returns an enumarable list of keys stored.
+        /// </summary>
+        /// <value>
+        /// The keys.
+        /// </value>
+        public IEnumerable<Point> Keys
         {
-            List<Chunk> visibleChunks = new List<Chunk>();
-
-            int leftMostChunk = (int)Math.Floor(viewPort.Left / (float)_chunkWidth);
-            int topMostChunk = (int)Math.Floor(viewPort.Top / (float)_chunkHeight);
-
-            int rightMostChunk = (int)Math.Floor(viewPort.Right / (float)_chunkWidth);
-            int bottomMostChunk = (int)Math.Floor(viewPort.Bottom / (float)_chunkHeight);
-
-            for (int x = leftMostChunk; x <= rightMostChunk; x++)
-            {
-                for (int y = topMostChunk; y <= bottomMostChunk; y++)
-                {
-                    visibleChunks.Add(GetChunkAt(new Point(x, y)));
-                }
-            }
-
-            BufferChunksAroundVisible(leftMostChunk, rightMostChunk, topMostChunk, bottomMostChunk);
-
-            DumpExcessChunksIfAny(viewPort);
-
-            return visibleChunks;
+            get { return _dictionary.Keys; }
         }
 
-        private void BufferChunksAroundVisible(int leftMostChunk, int rightMostChunk, int topMostChunk, int bottomMostChunk)
+        /// <summary>
+        /// Returns an enumarable list of chunks stored.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
+        public IEnumerable<Chunk> Values
         {
-            int leftBorderQuadrant = leftMostChunk - 1;
-            int rightBorderQuadrant = rightMostChunk + 1;
-            int topBorderQuadrant = topMostChunk - 1;
-            int bottomBorderQuadrant = bottomMostChunk + 1;
-
-            for (int x = leftBorderQuadrant; x <= rightBorderQuadrant; x++)
-            {
-                for (int y = topBorderQuadrant; y <= bottomBorderQuadrant; y++)
-                {
-                    if (x == leftBorderQuadrant || x == rightBorderQuadrant || y == topBorderQuadrant || y == bottomBorderQuadrant)
-                    {
-                        PreloadChunkAt(new Point(x, y));
-                    }
-                }
-            }
-        }
-
-        private void DumpExcessChunksIfAny(Rectangle viewPort)
-        {
-            if (_chunks.Count > MaxChunksInMemory)
-            {
-                int xCoordinateOfCenterChunk = (int)Math.Floor(viewPort.Center.X / (float)_chunkWidth);
-                int yCoordinateOfCenterChunk = (int)Math.Floor(viewPort.Center.Y / (float)_chunkHeight);
-
-                Point worldCoordinateOFCurrentCenterChunk = new Point(xCoordinateOfCenterChunk, yCoordinateOfCenterChunk);
-
-                List<Chunk> _allChunks = _chunks.Values.ToList();
-
-                SortChunksDescendingByDistanceToSpecificChunk(_allChunks, worldCoordinateOFCurrentCenterChunk);
-
-                while (_chunks.Count > MaxChunksInMemory)
-                {
-                    UnloadChunkAt(_allChunks.Last().WorldQuadrant);
-                    _allChunks.Remove(_allChunks.Last());
-                }
-            }
-        }
-
-        private void SortChunksDescendingByDistanceToSpecificChunk(List<Chunk> _allChunks, Point worldCoordinateOfCenterChunk)
-        {
-            _allChunks.Sort((chunk1, chunk2) =>
-            { return DistanceSquared(worldCoordinateOfCenterChunk, chunk1.WorldQuadrant).CompareTo(DistanceSquared(worldCoordinateOfCenterChunk, chunk2.WorldQuadrant)); });
-        }
-
-        private float DistanceSquared(Point p1, Point p2)
-        {
-            Point difference = new Point(p1.X - p2.X, p1.Y - p2.Y);
-            return (float)(Math.Pow(difference.X, 2) + Math.Pow(difference.Y, 2));
+            get { return _dictionary.Values; }
         }
     }
 }

@@ -45,10 +45,5 @@ namespace ProjectAona.Engine.Tiles
             get { return _tileType; }
             set { _tileType = value; }
         }
-
-        public void Draw(SpriteBatch spriteBatch, Vector2 cameraPosition)
-        {
-            spriteBatch.Draw(StaticData.StoneTexture, Position - cameraPosition, Color.White);
-        }
     }
 }

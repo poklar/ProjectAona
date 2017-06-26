@@ -9,7 +9,9 @@ namespace ProjectAona.Engine.Chunk.Generators
     /// <typeparam name="T"></typeparam>
     public interface ITestTerrain<T>
     {
-        T BuildChunk(Point worldQuadrant);
+        void BuildChunk(Chunk chunk);
+
+        //T BuildChunk(Point worldQuadrant);
     }
 
     public class TestTerrain : ITestTerrain<Chunk>
@@ -25,15 +27,12 @@ namespace ProjectAona.Engine.Chunk.Generators
             TileSizeInPixels = tileSizeInPixels;
         }
 
-        public Chunk BuildChunk(Point worldQuadrant)
+        public void BuildChunk(Chunk chunk)
         {
-            Chunk chunk = new Chunk(WidthInTiles, HeightInTiles, worldQuadrant, TileSizeInPixels);
             foreach (Tile tile in chunk.Tiles)
             {
                 tile.TileType = TileType.Stone;
             }
-
-            return chunk;
         }
     }
 }

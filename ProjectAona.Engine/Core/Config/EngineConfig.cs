@@ -22,12 +22,21 @@
         public GraphicsConfig Graphics { get; private set; }
 
         /// <summary>
+        /// Holds the world configuration parameters.
+        /// </summary>
+        /// <value>
+        /// The world.
+        /// </value>
+        public WorldConfig World { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EngineConfig"/> class.
         /// </summary>
         public EngineConfig()
         {
             Chunk = new ChunkConfig();
             Graphics = new GraphicsConfig();
+            World = new WorldConfig();
         }
 
         /// <summary>
@@ -40,6 +49,9 @@
                 return false;
 
             if (!Graphics.Validate())
+                return false;
+
+            if (!World.Validate())
                 return false;
 
             return true;
