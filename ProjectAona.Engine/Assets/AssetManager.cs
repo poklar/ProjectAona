@@ -18,6 +18,14 @@ namespace ProjectAona.Engine.Assets
         Texture2D StoneTestTexture { get; }
 
         /// <summary>
+        /// Gets the white test texture.
+        /// </summary>
+        /// <value>
+        /// The white test texture.
+        /// </value>
+        Texture2D WhiteTestTexture { get; }
+
+        /// <summary>
         /// Gets the default font.
         /// </summary>
         /// <value>
@@ -40,6 +48,14 @@ namespace ProjectAona.Engine.Assets
         /// The stone test texture.
         /// </value>
         public Texture2D StoneTestTexture { get; private set; }
+
+        /// <summary>
+        /// Gets the white test texture.
+        /// </summary>
+        /// <value>
+        /// The white test texture.
+        /// </value>
+        public Texture2D WhiteTestTexture { get; private set; }
 
         /// <summary>
         /// Gets the default font.
@@ -77,7 +93,8 @@ namespace ProjectAona.Engine.Assets
             // Set the content
             try
             {
-                StoneTestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex"); 
+                StoneTestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex");
+                WhiteTestTexture = Game.Content.Load<Texture2D>("Textures\\whiteTex");
 
                 DefaultFont = Game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
             }

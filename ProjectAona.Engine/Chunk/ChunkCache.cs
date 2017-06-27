@@ -12,12 +12,12 @@ namespace ProjectAona.Engine.Chunk
     public interface IChunkCache
     {
         /// <summary>
-        /// Temparary terraingenerator.
+        /// Gets or sets the chunk generator.
         /// </summary>
         /// <value>
         /// The chunk generator.
         /// </value>
-        ITestTerrain<Chunk> ChunkGenerator { get; set; }
+        SimpleTerrain ChunkGenerator { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum chunks in memory.
@@ -70,6 +70,14 @@ namespace ProjectAona.Engine.Chunk
     public class ChunkCache : GameComponent, IChunkCache
     {
         /// <summary>
+        /// Gets or sets the chunk generator.
+        /// </summary>
+        /// <value>
+        /// The chunk generator.
+        /// </value>
+        public SimpleTerrain ChunkGenerator { get; set; }
+
+        /// <summary>
         /// Gets the quadrants currently in memory.
         /// </summary>
         /// <value>
@@ -84,14 +92,6 @@ namespace ProjectAona.Engine.Chunk
         /// The maximum chunks in memory.
         /// </value>
         public int MaxChunksInMemory { get; set; }
-
-        /// <summary>
-        /// Temparary terraingenerator.
-        /// </summary>
-        /// <value>
-        /// The chunk generator.
-        /// </value>
-        public ITestTerrain<Chunk> ChunkGenerator { get; set; }
 
         /// <summary>
         /// The chunk width.
@@ -129,9 +129,7 @@ namespace ProjectAona.Engine.Chunk
             _chunkWidth = Core.Engine.Instance.Configuration.Chunk.WidthInTiles * 32; // 32 pixels
             _chunkHeight = Core.Engine.Instance.Configuration.Chunk.HeightInTiles * 32; // 32 pixels
 
-            ChunkGenerator = new TestTerrain(Core.Engine.Instance.Configuration.Chunk.WidthInTiles,
-                                             Core.Engine.Instance.Configuration.Chunk.HeightInTiles,
-                                             32);
+            ChunkGenerator = new SimpleTerrain();
         }
 
         /// <summary>
