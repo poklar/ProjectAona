@@ -48,7 +48,8 @@
     <Compile Include="Chunk\ChunkManager.cs" />
     <Compile Include="Chunk\ChunkCache.cs" />
     <Compile Include="Chunk\ChunkStorage.cs" />
-    <Compile Include="Chunk\Generators\TestTerrain.cs" />
+    <Compile Include="Chunk\Generators\SimpleTerrain.cs" />
+    <Compile Include="Common\Noise\SimplexNoise.cs" />
     <Compile Include="Core\Config\ChunkConfig.cs" />
     <Compile Include="Core\Config\EngineConfig.cs" />
     <Compile Include="Core\Config\GraphicsConfig.cs" />
@@ -74,9 +75,7 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
     <None Include="app.manifest" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

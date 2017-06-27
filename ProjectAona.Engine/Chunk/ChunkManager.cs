@@ -130,6 +130,8 @@ namespace ProjectAona.Engine.Chunk
         /// </summary>
         private void DrawAllPartiallyVisibleChunks()
         {
+            Texture2D texture = _assetManager.WhiteTestTexture;
+
             // For each chunk in the visible chunk list
             foreach (Chunk chunk in _chunkCache.GetVisibleChunks(_camera.ScreenRectangle))
             {
@@ -141,10 +143,11 @@ namespace ProjectAona.Engine.Chunk
                         Tile tile = chunk.Tiles[x, y];
 
                         // Get the texture from the tile textures dictionary
-                        Texture2D texture = _tileTexture.TileTextures[tile.TileType];
+                        //Texture2D texture = _tileTexture.TileTextures[tile.TileType];
+
 
                         // TODO: why tile.Position - _camera.Position?
-                        _spriteBatch.Draw(texture, tile.Position - _camera.Position, Color.White);
+                        _spriteBatch.Draw(texture, tile.Position - _camera.Position, tile.TileTypeColor(tile.TileType));
                     }
                 }
 

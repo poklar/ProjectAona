@@ -12,6 +12,14 @@ namespace ProjectAona.Engine.Tiles
         Grass,
         Water,
         Dirt,
-        Stone
+        Stone,
+        Marsh,
+        Tree, // TODO: REMOVE
+        Tree2, // TODO: REMOVE
+        Bush, // TODO: REMOVE
+        StoneOre, // TODO: REMOVE
+        IronOre, // TODO: REMOVE
+        Coal, // TODO: REMOVE
+        Cave // TODO: REMOVE
     }
 }

@@ -33,6 +33,8 @@ namespace ProjectAona.Engine.Input
         /// </summary>
         private MouseState _previousMouseState;
 
+        private int _previousScrollValue;
+
         /// <summary>
         /// The previous keyboard state.
         /// </summary>
@@ -57,6 +59,7 @@ namespace ProjectAona.Engine.Input
 
             // Setters
             _previousMouseState = Mouse.GetState();
+            _previousScrollValue = _previousMouseState.ScrollWheelValue;
             _previousKeyboardState = Keyboard.GetState();
 
             base.Initialize();
@@ -69,6 +72,7 @@ namespace ProjectAona.Engine.Input
         public override void Update(GameTime gameTime)
         {
             ProcessKeyboard(gameTime);
+            ProcessMouse();
 
             base.Update(gameTime);
         }
@@ -115,6 +119,27 @@ namespace ProjectAona.Engine.Input
                 position += Vector2.UnitX * moveSpeed;
                 _cameraController.MoveCamera(position);
             }
+        }
+
+        private void ProcessMouse()
+        {
+            MouseState currentMouseState = Mouse.GetState();
+
+            float scale = 0.05f;
+            float zoom = _camera.Zoom;
+
+            if (currentMouseState.ScrollWheelValue < _previousScrollValue)
+            {
+                zoom -= scale;
+                _cameraController.UpdateZoom(zoom);
+            }
+            else if (currentMouseState.ScrollWheelValue > _previousScrollValue)
+            {
+                zoom += scale;
+                _cameraController.UpdateZoom(zoom);
+            }
+
+            _previousScrollValue = currentMouseState.ScrollWheelValue;
         }
     }
 }

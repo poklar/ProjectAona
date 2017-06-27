@@ -16,7 +16,7 @@ namespace ProjectAona.Engine.Chunk
         public Point WorldQuadrant { get; private set; }
 
         /// <summary>
-        /// Gets the position of the tile.
+        /// Gets the position of the chunk.
         /// </summary>
         /// <value>
         /// The position.
@@ -96,6 +96,17 @@ namespace ProjectAona.Engine.Chunk
                     Tiles[x, y] = new Tile(new Vector2(Position.X + x * TileSizeInPixels, Position.Y + y * TileSizeInPixels), TileType.None);
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets the tile.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="tileType">Type of the tile.</param>
+        public void SetTile(int x, int y, TileType tileType)
+        {
+            Tiles[x, y].TileType = tileType;
         }
 
         /// <summary>

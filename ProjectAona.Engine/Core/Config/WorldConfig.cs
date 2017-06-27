@@ -28,13 +28,22 @@ namespace ProjectAona.Engine.Core.Config
         public int MapHeight { get; set; }
 
         /// <summary>
+        /// Gets or sets the map seed.
+        /// </summary>
+        /// <value>
+        /// The seed.
+        /// </value>
+        public int Seed { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="WorldConfig"/> class.
         /// </summary>
         internal WorldConfig()
         {
             // Set the defaults
-            MapWidth = 16 * 5;
-            MapHeight = 16 * 5;
+            MapWidth = 16 * 10;
+            MapHeight = 16 * 10;
+            Seed = 100;
         }
 
         /// <summary>
