@@ -1,8 +1,18 @@
+27-06-2017
+version: 0.1.1
+
+I'm able to create "random" generated terrain by using Simplex noise. It uses only colors for now. I'm not sure if I'm doing it correctly though. But it works for now. 
+
 ToDo:
-Get my hands dirty with procedural generation for my tiles. This will take a while since I'm completly new to this.
+- Fix zoom camera.
+- Figure out a system for the tile to know if it's occupied by something (tree, mineral, etc) and how to find that item, should the tile know it has an object on top of it? Questions.
+- Replace the colors with textures.
 
 ----------------
 26-06-2017
 version: 0.1
 
 Chunk creation works now.
+
+ToDo:
+- Get my hands dirty with procedural generation for my tiles. This will take a while since I'm completly new to this.
