@@ -10,3 +10,6 @@ obj/
 
 # Ignore `.vs` dir
 .vs/
+
+# Ignore 
+ideas.txt
