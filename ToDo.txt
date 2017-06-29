@@ -1,3 +1,15 @@
+29-06-2017
+version: 0.1.2
+
+I replaced the colors with textures now. And am able too zoom in/out.
+
+ToDo:
+* Fix Terrain textures flickering
+* Read more on game structure
+* Create proper cave walls and make sure they connect the right way
+* Look into texture atlas
+
+----------------
 27-06-2017
 version: 0.1.1
 
