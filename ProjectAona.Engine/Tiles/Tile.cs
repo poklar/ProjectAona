@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ProjectAona.Engine.Assets;
+using ProjectAona.Engine.World.TerrainObjects;
 
 namespace ProjectAona.Engine.Tiles
 {
@@ -9,30 +8,13 @@ namespace ProjectAona.Engine.Tiles
     /// </summary>
     public class Tile
     {
-        private TileType _tileType;
-        private Vector2 _position;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Tile"/> class.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        public Tile(Vector2 position, TileType tileType)
-        {
-            _position = position;
-            _tileType = tileType;
-        }
-
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
         /// <value>
         /// The position.
         /// </value>
-        public Vector2 Position
-        {
-            get { return _position; }
-            set { _position = value; }
-        }
+        public Vector2 Position { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the tile.
@@ -40,37 +22,41 @@ namespace ProjectAona.Engine.Tiles
         /// <value>
         /// The type of the tile.
         /// </value>
-        public TileType TileType
-        {
-            get { return _tileType; }
-            set { _tileType = value; }
-        }
+        public TileType TileType { get; set; }
 
         /// <summary>
-        /// Tiles the color of the type.
+        /// Gets or sets a value indicating whether the tile is occupied by an object.
         /// </summary>
-        /// <param name="tileType">Type of the tile.</param>
-        /// <returns></returns>
-        // TODO: Just for testing purposes, will be removed later
-        public Color TileTypeColor(TileType tileType)
+        /// <value>
+        ///   <c>true</c> if the tile is occupied; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsOccupied { get; set; }
+
+        /// <summary>
+        /// Gets or sets the flora.
+        /// </summary>
+        /// <value>
+        /// The flora.
+        /// </value>
+        public Flora Flora { get; set; }
+
+        /// <summary>
+        /// Gets or sets the mineral.
+        /// </summary>
+        /// <value>
+        /// The mineral.
+        /// </value>
+        public Mineral Mineral { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Tile"/> class.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        public Tile(Vector2 position, TileType tileType)
         {
-            switch (tileType)
-            {
-                case TileType.Grass: return Color.Green;
-                case TileType.Dirt: return Color.SaddleBrown;
-                case TileType.Water: return Color.Blue;
-                case TileType.Marsh: return Color.DarkGreen;
-                case TileType.Stone: return Color.Gray;
-                case TileType.Tree: return Color.GreenYellow;
-                case TileType.Tree2: return Color.Orange;
-                case TileType.Bush: return Color.Black;
-                case TileType.Cave: return Color.IndianRed;
-                case TileType.StoneOre: return Color.Aqua;
-                case TileType.IronOre: return Color.Red;
-                case TileType.Coal: return Color.Black;
-                case TileType.None: return Color.Pink;
-                default: return Color.Pink; //to make undefined tiles stand out
-            }
+            Position = position;
+            TileType = tileType;
+            IsOccupied = false;
         }
     }
 }

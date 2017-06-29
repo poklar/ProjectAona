@@ -1,13 +1,33 @@
-﻿using ProjectAona.Engine.Common.Noise;
+﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Common.Noise;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.World;
+using ProjectAona.Engine.World.TerrainObjects;
 
 namespace ProjectAona.Engine.Chunk.Generators
 {
     /// <summary>
     /// Simple terrain generator.
     /// </summary>
-    public class SimpleTerrain
+    public class SimpleTerrain : GameComponent, ITerrainGenerator
     {
+        private ITerrainManager _terrainManager;
+
+        public SimpleTerrain(Game game)
+            : base(game)
+        {
+            // Export service
+            Game.Services.AddService(typeof(ITerrainGenerator), this);
+        }
+
+        public override void Initialize()
+        {
+            // Get service
+            _terrainManager = (ITerrainManager)Game.Services.GetService(typeof(ITerrainManager));
+
+            base.Initialize();
+        }
+
         /// <summary>
         /// Builds the chunk.
         /// </summary>
@@ -56,21 +76,19 @@ namespace ProjectAona.Engine.Chunk.Generators
             float noise = octave1 + octave2 + octave3 + octave4 + octave5;
 
             // TODO: For now I'm using color's as tile types, this will change.
-            // TODO: Also Cave/Minerals/Flora are not tiles, so that needs to be changed.
 
             // None generated tile is grass
-            TileType tileType = TileType.Grass;
+            TileType tileType = TileType.LightGrass;
+
+            Tile tile = chunk.Tiles[tileXInChunk, tileYInChunk];
    
             // If below this threshold
             if (noise < 0.45f && noise > 0.391f)
             {
                 // Create some flora
-                tileType = CreateFlora(worldX, worldY);
+                CreateFlora(tile, worldX, worldY);
 
-                // If the tile isn't set
-                if (tileType == TileType.None)
-                    // Set to marsh type
-                    tileType = TileType.Marsh;
+                tileType = CreateGrassTypes(worldX, worldY);
             }
             else if (noise < 0.4504 && noise > 0.45f)
             {
@@ -80,26 +98,42 @@ namespace ProjectAona.Engine.Chunk.Generators
             else if (noise < 0.50f && noise > 0.4504f)
             {
                 // Create some flora
-                tileType = CreateFlora(worldX, worldY);
+                CreateFlora(tile, worldX, worldY);
 
-                // If the tile isn't set
-                if (tileType == TileType.None)
-                    // Set to grass type
-                    tileType = TileType.Grass;
+                // Set to grass type
+                tileType = CreateGrassTypes(worldX, worldY);
             }
             else if (noise < 0.6f)
             {
                 // Create some caves/minerals
-                tileType = CreateCaves(worldX, worldY);
-
-                // If the tile isn't set
-                if (tileType == TileType.None)
-                    // Set to stone type
-                    tileType = TileType.Stone;
+                CreateCaves(tile, worldX, worldY);
+                
+                // Set to stone type
+                tileType = TileType.Stone;
             }
 
             // Set the chunks tile type
             chunk.SetTile(tileXInChunk, tileYInChunk, tileType);
+        }
+
+        /// <summary>
+        /// Creates the grass types.
+        /// </summary>
+        /// <param name="worldX">The world x.</param>
+        /// <param name="worldY">The world y.</param>
+        /// <returns></returns>
+        private TileType CreateGrassTypes(int worldX, int worldY)
+        {
+            // Do some magic
+            float noise = NoiseValue(worldX, worldY);
+
+            // If below the threshold, ...
+            if (noise < 0.83f && noise > 0.73f || noise < 0.95f && noise > 0.88f)
+            {
+                return TileType.DarkGrass;
+            }
+            else
+                return TileType.LightGrass;
         }
 
         /// <summary>
@@ -108,29 +142,24 @@ namespace ProjectAona.Engine.Chunk.Generators
         /// <param name="worldX">The world x.</param>
         /// <param name="worldY">The world y.</param>
         /// <returns></returns>
-        private TileType CreateFlora(int worldX, int worldY)
+        private void CreateFlora(Tile tile, int worldX, int worldY)
         {
             // Do some magic
-            float octave4 = SimplexNoise.noise(worldX * 0.49f, worldY * 0.49f) * 0.92f;
-            float octave5 = SimplexNoise.noise(worldX * 0.88f, worldY * 0.88f) * octave4;
-            float noise = octave4 + octave5;
+            float noise = NoiseValue(worldX, worldY);
             
             // If below the threshold, create trees or bushes
-            if (noise < 0.72 && noise > 0.70f)
+            if (noise < 0.75 && noise > 0.70f)
             {
-                return TileType.Tree2;
+                _terrainManager.AddFlora(FloraType.OakTree, tile);
             }
             else if (noise < 0.81 && noise > 0.80f)
             {
-                return TileType.Bush;
+                _terrainManager.AddFlora(FloraType.RasberryBush, tile);
             }
             else if (noise < 0.97 && noise > 0.94f)
             {
-                return TileType.Tree;
+                _terrainManager.AddFlora(FloraType.PoplarTree, tile);
             }
-
-            // Return none if nothing was chosen
-            return TileType.None;
         }
 
         /// <summary>
@@ -139,7 +168,7 @@ namespace ProjectAona.Engine.Chunk.Generators
         /// <param name="worldX">The world x.</param>
         /// <param name="worldY">The world y.</param>
         /// <returns></returns>
-        private TileType CreateCaves(int worldX, int worldY)
+        private void CreateCaves(Tile tile, int worldX, int worldY)
         {
             // Do some magic
             float octave4 = SimplexNoise.noise(worldX * 0.01f, worldY * 0.01f) * 0.12f;
@@ -149,35 +178,46 @@ namespace ProjectAona.Engine.Chunk.Generators
             // If below a certain threshold, create minerals 
             if (noise < 0.04 && noise > 0.03f)
             {
-                return TileType.IronOre;
+                _terrainManager.AddMineral(MineralType.IronOre, tile);
             }
             else if (noise < 0.045 && noise > 0.04f)
             {
-                return TileType.Cave;
+                _terrainManager.AddMineral(MineralType.None, tile);
             }
             else if (noise < 0.055 && noise > 0.045f)
             {
-                return TileType.StoneOre;
+                _terrainManager.AddMineral(MineralType.StoneOre, tile);
             }
             else if (noise < 0.065 && noise > 0.055f)
             {
-                return TileType.Coal;
+                _terrainManager.AddMineral(MineralType.CoalOre, tile);
             }
             else if (noise < 0.09 && noise > 0.065f)
             {
-                return TileType.Cave;
+                _terrainManager.AddMineral(MineralType.None, tile);
             }
             else if (noise < 0.13 && noise > 0.09f)
             {
-                return TileType.StoneOre;
+                _terrainManager.AddMineral(MineralType.StoneOre, tile);
             }
             else if (noise < 0.15 && noise > 0.13f)
             {
-                return TileType.Cave;
+                _terrainManager.AddMineral(MineralType.None, tile);
             }
+        }
 
-            // Return none if nothing was chosen
-            return TileType.None;
+        /// <summary>
+        /// Creates a noise value.
+        /// </summary>
+        /// <param name="worldX">The world x.</param>
+        /// <param name="worldY">The world y.</param>
+        /// <returns></returns>
+        private float NoiseValue(int worldX, int worldY)
+        {
+            // Do some magic
+            float octave4 = SimplexNoise.noise(worldX * 0.49f, worldY * 0.49f) * 0.92f;
+            float octave5 = SimplexNoise.noise(worldX * 0.88f, worldY * 0.88f) * octave4;
+            return octave4 + octave5;
         }
     }
 }

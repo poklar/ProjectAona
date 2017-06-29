@@ -48,6 +48,7 @@
     <Compile Include="Chunk\ChunkManager.cs" />
     <Compile Include="Chunk\ChunkCache.cs" />
     <Compile Include="Chunk\ChunkStorage.cs" />
+    <Compile Include="Chunk\Generators\ITerrainGenerator.cs" />
     <Compile Include="Chunk\Generators\SimpleTerrain.cs" />
     <Compile Include="Common\Noise\SimplexNoise.cs" />
     <Compile Include="Core\Config\ChunkConfig.cs" />
@@ -63,6 +64,11 @@
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileTexture.cs" />
     <Compile Include="Tiles\TileType.cs" />
+    <Compile Include="World\TerrainManager.cs" />
+    <Compile Include="World\TerrainObjects\Flora.cs" />
+    <Compile Include="World\TerrainObjects\FloraType.cs" />
+    <Compile Include="World\TerrainObjects\Mineral.cs" />
+    <Compile Include="World\TerrainObjects\MineralType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

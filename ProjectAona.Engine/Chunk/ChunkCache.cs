@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using ProjectAona.Engine.Chunk.Generators;
+using ProjectAona.Engine.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,6 @@ namespace ProjectAona.Engine.Chunk
     /// </summary>
     public interface IChunkCache
     {
-        /// <summary>
-        /// Gets or sets the chunk generator.
-        /// </summary>
-        /// <value>
-        /// The chunk generator.
-        /// </value>
-        SimpleTerrain ChunkGenerator { get; set; }
-
         /// <summary>
         /// Gets or sets the maximum chunks in memory.
         /// </summary>
@@ -34,6 +27,14 @@ namespace ProjectAona.Engine.Chunk
         /// The quadrants currently in memory.
         /// </value>
         IEnumerable<Point> QuadrantsCurrentlyInMemory { get; }
+
+        /// <summary>
+        /// Gets the chunk storage.
+        /// </summary>
+        /// <value>
+        /// The chunk storage.
+        /// </value>
+        IChunkStorage ChunkStorage { get; }
 
         /// <summary>
         /// Gets the chunk at the world quadrant.
@@ -70,20 +71,20 @@ namespace ProjectAona.Engine.Chunk
     public class ChunkCache : GameComponent, IChunkCache
     {
         /// <summary>
-        /// Gets or sets the chunk generator.
-        /// </summary>
-        /// <value>
-        /// The chunk generator.
-        /// </value>
-        public SimpleTerrain ChunkGenerator { get; set; }
-
-        /// <summary>
         /// Gets the quadrants currently in memory.
         /// </summary>
         /// <value>
         /// The quadrants currently in memory.
         /// </value>
-        public IEnumerable<Point> QuadrantsCurrentlyInMemory { get { return _chunkStorage.Keys; } }
+        public IEnumerable<Point> QuadrantsCurrentlyInMemory { get { return ChunkStorage.Keys; } }
+
+        /// <summary>
+        /// Gets the chunk storage.
+        /// </summary>
+        /// <value>
+        /// The chunk storage.
+        /// </value>
+        public IChunkStorage ChunkStorage { get; private set; }
 
         /// <summary>
         /// Gets or sets the maximum chunks in memory.
@@ -104,14 +105,19 @@ namespace ProjectAona.Engine.Chunk
         private readonly int _chunkHeight;
 
         /// <summary>
-        /// The chunk storage.
-        /// </summary>
-        private IChunkStorage _chunkStorage;
-
-        /// <summary>
         /// The chunk manager.
         /// </summary>
         private IChunkManager _chunkManager;
+
+        /// <summary>
+        /// The chunk generator.
+        /// </summary>
+        private ITerrainGenerator _chunkGenerator;
+
+        /// <summary>
+        /// The terrain manager.
+        /// </summary>
+        private ITerrainManager _terrainManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChunkCache"/> class.
@@ -128,8 +134,6 @@ namespace ProjectAona.Engine.Chunk
             MaxChunksInMemory = maxMapsInMemory;
             _chunkWidth = Core.Engine.Instance.Configuration.Chunk.WidthInTiles * 32; // 32 pixels
             _chunkHeight = Core.Engine.Instance.Configuration.Chunk.HeightInTiles * 32; // 32 pixels
-
-            ChunkGenerator = new SimpleTerrain();
         }
 
         /// <summary>
@@ -138,8 +142,10 @@ namespace ProjectAona.Engine.Chunk
         public override void Initialize()
         {
             // Get services
-            _chunkStorage = (IChunkStorage)Game.Services.GetService(typeof(IChunkStorage));
+            ChunkStorage = (IChunkStorage)Game.Services.GetService(typeof(IChunkStorage));
             _chunkManager = (IChunkManager)Game.Services.GetService(typeof(IChunkManager));
+            _chunkGenerator = (ITerrainGenerator)Game.Services.GetService(typeof(ITerrainGenerator));
+            _terrainManager = (ITerrainManager)Game.Services.GetService(typeof(ITerrainManager));
 
             base.Initialize();
         }
@@ -155,9 +161,9 @@ namespace ProjectAona.Engine.Chunk
             PreloadChunkAt(worldQuadrant);
 
             // If the chunk exists in the storage
-            if (_chunkStorage.ContainsKey(worldQuadrant))
+            if (ChunkStorage.ContainsKey(worldQuadrant))
                 // Return the chunk
-                return _chunkStorage[worldQuadrant];
+                return ChunkStorage[worldQuadrant];
             else
                 return null;
         }
@@ -169,7 +175,7 @@ namespace ProjectAona.Engine.Chunk
         public void PreloadChunkAt(Point worldQuadrant)
         {
             // If the storage contains the chunk at worldquadrant
-            if (!_chunkStorage.ContainsKey(worldQuadrant))
+            if (!ChunkStorage.ContainsKey(worldQuadrant))
                 // Load/create missing chunk
                 LoadOrCreateMissingChunk(worldQuadrant);
         }
@@ -191,9 +197,9 @@ namespace ProjectAona.Engine.Chunk
                 chunk = new Chunk(worldQuadrant);
 
                 // Generate the chunk
-                ChunkGenerator.BuildChunk(chunk);
+                _chunkGenerator.BuildChunk(chunk);
                 // Store the chunk in the storage
-                _chunkStorage[worldQuadrant] = chunk;
+                ChunkStorage[worldQuadrant] = chunk;
             }
         }
 
@@ -204,7 +210,7 @@ namespace ProjectAona.Engine.Chunk
         public void UnloadChunkAt(Point worldQuadrant)
         {
             // Remove from storage
-            _chunkStorage.Remove(worldQuadrant);
+            ChunkStorage.Remove(worldQuadrant);
         }
 
         /// <summary>
@@ -291,7 +297,7 @@ namespace ProjectAona.Engine.Chunk
         private void DumpExcessChunksIfAny(Rectangle viewPort)
         {
             // Check if there are more chunks stored than allowed
-            if (_chunkStorage.Count > MaxChunksInMemory)
+            if (ChunkStorage.Count > MaxChunksInMemory)
             {
                 int xCoordinateOfCenterChunk = (int)Math.Floor(viewPort.Center.X / (float)_chunkWidth);
                 int yCoordinateOfCenterChunk = (int)Math.Floor(viewPort.Center.Y / (float)_chunkHeight);
@@ -299,13 +305,13 @@ namespace ProjectAona.Engine.Chunk
                 Point worldCoordinateOFCurrentCenterChunk = new Point(xCoordinateOfCenterChunk, yCoordinateOfCenterChunk);
 
                 // Create a list of the stored chunks, containing only chunks
-                List<Chunk> _allChunks = _chunkStorage.Values.ToList();
+                List<Chunk> _allChunks = ChunkStorage.Values.ToList();
 
                 // Sort the chunks
                 SortChunksDescendingByDistanceToSpecificChunk(_allChunks, worldCoordinateOFCurrentCenterChunk);
 
                 // As long as there are too many chunks stored
-                while (_chunkStorage.Count > MaxChunksInMemory)
+                while (ChunkStorage.Count > MaxChunksInMemory)
                 {
                     // Remove chunk from storage
                     UnloadChunkAt(_allChunks.Last().WorldQuadrant);

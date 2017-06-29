@@ -125,7 +125,9 @@ namespace ProjectAona.Engine.Input
         {
             MouseState currentMouseState = Mouse.GetState();
 
-            float scale = 0.05f;
+            // TODO: Get this from a config file (player/world)
+            float scale = 0.025f;
+
             float zoom = _camera.Zoom;
 
             if (currentMouseState.ScrollWheelValue < _previousScrollValue)
