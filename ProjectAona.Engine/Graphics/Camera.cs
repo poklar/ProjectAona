@@ -99,6 +99,8 @@ namespace ProjectAona.Engine.Graphics
         /// </summary>
         private float _zoom;
 
+        private Rectangle _bounds;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Camera"/> class.
         /// </summary>
@@ -118,7 +120,7 @@ namespace ProjectAona.Engine.Graphics
         public float Zoom
         {
             get { return _zoom; }
-            set { _zoom = value; if (_zoom < 0.1f) _zoom = 0.1f; } // Negative zoom will flip image
+            set { _zoom = value; if (_zoom < 0.5f) _zoom = 0.5f; } // Negative zoom will flip image
         }
 
         /// <summary>
@@ -129,15 +131,16 @@ namespace ProjectAona.Engine.Graphics
         {
             // Get the viewport boundary
             viewPort = Game.GraphicsDevice.Viewport.Bounds;
+            _bounds = new Rectangle((int)Position.X, (int)Position.Y, (int)(viewPort.Width / Zoom), (int)(viewPort.Height / Zoom));
 
             // Change viewport's position
             viewPort.Offset((int)Position.X, (int)Position.Y);
             // Set viewport to screen rectangle
-            ScreenRectangle = viewPort;
+            ScreenRectangle = _bounds;
 
             View = //Matrix.CreateTranslation(-Position.X, -Position.Y, 0) *
                    Matrix.CreateScale(Zoom, Zoom, 1.0f);
-                   //Matrix.CreateTranslation(viewPort.Width / 2, viewPort.Height / 2, 0.0f);
+                   Matrix.CreateTranslation(viewPort.Width / 2, viewPort.Height / 2, 0.0f);
 
 
             base.Update(gameTime);

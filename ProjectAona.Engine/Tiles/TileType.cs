@@ -9,17 +9,9 @@ namespace ProjectAona.Engine.Tiles
     public enum TileType : byte
     {
         None,
-        Grass,
+        LightGrass,
         Water,
-        Dirt,
         Stone,
-        Marsh,
-        Tree, // TODO: REMOVE
-        Tree2, // TODO: REMOVE
-        Bush, // TODO: REMOVE
-        StoneOre, // TODO: REMOVE
-        IronOre, // TODO: REMOVE
-        Coal, // TODO: REMOVE
-        Cave // TODO: REMOVE
+        DarkGrass
     }
 }

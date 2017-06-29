@@ -1,10 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunk.Generators;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.World;
 using System;
 
 namespace ProjectAona.Engine.Core
@@ -27,6 +30,11 @@ namespace ProjectAona.Engine.Core
         /// </value>
         public Game Game { get; private set; }
 
+        /// <summary>
+        /// The sprite batch.
+        /// </summary>
+        private SpriteBatch _spriteBatch;
+
         public delegate void EngineStartHandler(object sender, EventArgs e);
         public event EngineStartHandler EngineStart;
 
@@ -41,6 +49,7 @@ namespace ProjectAona.Engine.Core
             
             Game = game;
             Configuration = config;
+            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
 
             // Validate the config
             config.Validate();
@@ -73,7 +82,9 @@ namespace ProjectAona.Engine.Core
         {
             Game.Components.Add(new InputManager(Game));
             Game.Components.Add(new AssetManager(Game));
-            Game.Components.Add(new ChunkManager(Game));
+            Game.Components.Add(new ChunkManager(Game, _spriteBatch));
+            Game.Components.Add(new SimpleTerrain(Game));
+            Game.Components.Add(new TerrainManager(Game, _spriteBatch));
             Game.Components.Add(new TileTexture(Game));
             Game.Components.Add(new Camera(Game));
             Game.Components.Add(new ChunkStorage(Game));

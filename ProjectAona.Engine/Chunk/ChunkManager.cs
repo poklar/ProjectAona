@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk.Generators;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
 
@@ -18,6 +17,12 @@ namespace ProjectAona.Engine.Chunk
         /// <param name="worldQuadrant">The world quadrant.</param>
         /// <returns></returns>
         bool InWorldBounds(Point worldQuadrant);
+
+        /// <summary>
+        /// Currently loaded chunks.
+        /// </summary>
+        /// <returns></returns>
+        IChunkStorage CurrentlyLoadedChunks();
     }
     /// <summary>
     /// The chunk manager.
@@ -62,25 +67,17 @@ namespace ProjectAona.Engine.Chunk
         private IChunkStorage _chunkStorage;
 
         /// <summary>
-        /// The stone texture.
-        /// </summary>
-        private Texture2D _stoneTexture;
-
-        /// <summary>
-        /// The default font..
-        /// </summary>
-        private SpriteFont _defaultFont;
-
-        /// <summary>
         /// The sprite batch.
         /// </summary>
         private SpriteBatch _spriteBatch;
 
-        public ChunkManager(Game game)
+        public ChunkManager(Game game, SpriteBatch spriteBatch)
             : base(game)
         {
             // Export service
             Game.Services.AddService(typeof(IChunkManager), this);
+
+            _spriteBatch = spriteBatch;
         }
 
         /// <summary>
@@ -99,23 +96,12 @@ namespace ProjectAona.Engine.Chunk
         }
 
         /// <summary>
-        /// Loads the content.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            // Setters
-            _stoneTexture = _assetManager.StoneTestTexture;
-            _defaultFont = _assetManager.DefaultFont;
-            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
-        }
-
-        /// <summary>
         /// Draws the specified game time.
         /// </summary>
         /// <param name="gameTime">The game time.</param>
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.Texture, null, null, null, null, null, _camera.View);
 
             DrawAllPartiallyVisibleChunks();
             DrawCurrentlyLoadedChunksInfo();
@@ -130,8 +116,6 @@ namespace ProjectAona.Engine.Chunk
         /// </summary>
         private void DrawAllPartiallyVisibleChunks()
         {
-            Texture2D texture = _assetManager.WhiteTestTexture;
-
             // For each chunk in the visible chunk list
             foreach (Chunk chunk in _chunkCache.GetVisibleChunks(_camera.ScreenRectangle))
             {
@@ -147,7 +131,7 @@ namespace ProjectAona.Engine.Chunk
 
 
                         // TODO: why tile.Position - _camera.Position?
-                        _spriteBatch.Draw(texture, tile.Position - _camera.Position, tile.TileTypeColor(tile.TileType));
+                        _spriteBatch.Draw(TileTexture(tile.TileType), tile.Position - _camera.Position, Color.White);
                     }
                 }
 
@@ -183,6 +167,15 @@ namespace ProjectAona.Engine.Chunk
         }
 
         /// <summary>
+        /// Currently loaded chunks.
+        /// </summary>
+        /// <returns></returns>
+        public IChunkStorage CurrentlyLoadedChunks()
+        {
+            return _chunkCache.ChunkStorage;
+        }
+
+        /// <summary>
         /// Checks if it is in world bounds.
         /// </summary>
         /// <param name="worldQuadrant">The world quadrant.</param>
@@ -199,6 +192,25 @@ namespace ProjectAona.Engine.Chunk
             // If out of bounds
             else
                 return false;
+        }
+
+        /// <summary>
+        /// Gets the texture from the tile type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        // TODO: REMOVE, a texture atlas will be added later
+        private Texture2D TileTexture(TileType type)
+        {
+            // Get the corresponding texture
+            switch (type)
+            {
+                case TileType.LightGrass: return _assetManager.LightGrassTile;
+                case TileType.DarkGrass: return _assetManager.DarkGrassTile;
+                case TileType.Stone: return _assetManager.StoneTile;
+                case TileType.Water: return _assetManager.WaterTile;
+                default: return null;
+            }
         }
     }
 }
