@@ -12,7 +12,7 @@ obj/
 .vs/
 
 # Ignore `packages` dir
-*/packages/*
+packages/*
 
 # Ignore
 packages.config
