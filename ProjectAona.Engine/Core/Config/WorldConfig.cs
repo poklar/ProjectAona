@@ -41,8 +41,9 @@ namespace ProjectAona.Engine.Core.Config
         internal WorldConfig()
         {
             // Set the defaults
-            MapWidth = 16 * 10;
-            MapHeight = 16 * 10;
+            // TODO: Don't hardcode the chunk width/height, do it in Engine?
+            MapWidth = 16 * 10; // chunk x times
+            MapHeight = 16 * 10; // chunk x times
             Seed = 100;
         }
 

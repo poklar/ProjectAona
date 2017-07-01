@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
+using System.Collections.Generic;
 
 namespace ProjectAona.Engine.Chunk
 {
@@ -12,6 +13,21 @@ namespace ProjectAona.Engine.Chunk
     public interface IChunkManager
     {
         /// <summary>
+        /// Tile at position x, y.
+        /// </summary>
+        /// <param name="x">The x-coordinate.</param>
+        /// <param name="y">The y-coordinate.</param>
+        /// <returns></returns>
+        Tile TileAt(int x, int y);
+
+        /// <summary>
+        /// Chunk at world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        Chunk ChunkAt(Point worldQuadrant);
+
+        /// <summary>
         /// Checks if it is in world bounds.
         /// </summary>
         /// <param name="worldQuadrant">The world quadrant.</param>
@@ -19,10 +35,10 @@ namespace ProjectAona.Engine.Chunk
         bool InWorldBounds(Point worldQuadrant);
 
         /// <summary>
-        /// Currently loaded chunks.
+        /// Currently visible chunks.
         /// </summary>
         /// <returns></returns>
-        IChunkStorage CurrentlyLoadedChunks();
+        IEnumerable<Chunk> VisibleChunks();
     }
     /// <summary>
     /// The chunk manager.
@@ -41,15 +57,12 @@ namespace ProjectAona.Engine.Chunk
         /// </summary>
         public int ChunkRatioHeight = Core.Engine.Instance.Configuration.World.MapHeight / Core.Engine.Instance.Configuration.Chunk.HeightInTiles;
 
+        private Chunk[,] _chunks;
+
         /// <summary>
         /// The asset manager.
         /// </summary>
         private IAssetManager _assetManager;
-
-        /// <summary>
-        /// The tile texture.
-        /// </summary>
-        private ITileTexture _tileTexture;
 
         /// <summary>
         /// The camera.
@@ -87,12 +100,34 @@ namespace ProjectAona.Engine.Chunk
         {
             // Get the services
             _assetManager = (IAssetManager)Game.Services.GetService(typeof(IAssetManager));
-            _tileTexture = (ITileTexture)Game.Services.GetService(typeof(ITileTexture));
             _camera = (ICamera)Game.Services.GetService(typeof(ICamera));
             _chunkCache = (IChunkCache)Game.Services.GetService(typeof(IChunkCache));
             _chunkStorage = (IChunkStorage)Game.Services.GetService(typeof(IChunkStorage));
+
+            // Initalize the chunks
+            InitializeChunks();
             
             base.Initialize();
+        }
+
+        /// <summary>
+        /// Initializes the chunks.
+        /// </summary>
+        private void InitializeChunks()
+        {
+            // Initialize the array
+            _chunks = new Chunk[ChunkRatioWidth, ChunkRatioHeight];
+
+            // For every width ratio..
+            for (int x = 0; x < ChunkRatioWidth; x++)
+            {
+                // For every height ratio..
+                for (int y = 0; y < ChunkRatioHeight; y++)
+                {
+                    // Create a new chunk
+                    _chunks[x, y] = new Chunk(new Point(x, y));
+                }
+            }
         }
 
         /// <summary>
@@ -167,12 +202,71 @@ namespace ProjectAona.Engine.Chunk
         }
 
         /// <summary>
-        /// Currently loaded chunks.
+        /// Tile at position x, y.
+        /// </summary>
+        /// <param name="x">The x-coordinate.</param>
+        /// <param name="y">The y-coordinate.</param>
+        /// <returns></returns>
+        public Tile TileAt(int x, int y)
+        {
+            // Check if it's in world bounds
+            if (InWorldBounds(x, y))
+            {
+                // Get the chunk by deviding x and y by chunks in width/height times pixels of the tiles
+                Chunk chunk = _chunks[x / 512, y / 512]; // TODO: That 512 hardcoed is UGLY; FIX it
+                // Find the remainder of x and y and then divide it by pixels in width/height
+                Tile tile = chunk.Tiles[(x % 512) / 32, (y % 512 ) / 32];
+
+                // Return the tile
+                return tile;
+            }
+
+            // Not in bounds, return null
+            return null;
+        }
+
+        /// <summary>
+        /// Chunk at world quadrant.
+        /// </summary>
+        /// <param name="worldQuadrant">The world quadrant.</param>
+        /// <returns></returns>
+        public Chunk ChunkAt(Point worldQuadrant)
+        {
+            // Check if in it's in world bounds
+            if (InWorldBounds(worldQuadrant))
+            {
+                // Return the chunk
+                return _chunks[worldQuadrant.X, worldQuadrant.Y];
+            }
+            // If it doesn't exist
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Currently visible chunks.
         /// </summary>
         /// <returns></returns>
-        public IChunkStorage CurrentlyLoadedChunks()
+        public IEnumerable<Chunk> VisibleChunks()
         {
-            return _chunkCache.ChunkStorage;
+            // Return visible chunks
+            return _chunkCache.GetVisibleChunks(_camera.ScreenRectangle);
+        }
+
+        /// <summary>
+        /// Checks if it is in world bounds.
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <returns></returns>
+        public bool InWorldBounds(int x, int y)
+        {
+            // If x/y less then 0 or x/y are bigger than mapwidth/height times pixels, out of bounds, return false
+            if (x < 0 || y < 0 || x >= Core.Engine.Instance.Configuration.World.MapWidth * 32 || y >= Core.Engine.Instance.Configuration.World.MapHeight * 32)
+                return false;
+
+            // Otherwise return true
+            return true;
         }
 
         /// <summary>
@@ -212,5 +306,7 @@ namespace ProjectAona.Engine.Chunk
                 default: return null;
             }
         }
+
+
     }
 }

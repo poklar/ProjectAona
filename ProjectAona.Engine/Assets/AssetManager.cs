@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-
-// Textures are from https://opengameart.org or made by me.
+using System.Collections.Generic;
 
 namespace ProjectAona.Engine.Assets
 {
@@ -11,54 +10,6 @@ namespace ProjectAona.Engine.Assets
     /// </summary>
     public interface IAssetManager
     {
-        /// <summary>
-        /// Gets the stone test texture.
-        /// </summary>
-        /// <value>
-        /// The stone test texture.
-        /// </value>
-        Texture2D StoneTestTexture { get; }
-
-        /// <summary>
-        /// Gets the white test texture.
-        /// </summary>
-        /// <value>
-        /// The white test texture.
-        /// </value>
-        Texture2D WhiteTestTexture { get; }
-
-        /// <summary>
-        /// Gets the iron ore texture.
-        /// </summary>
-        /// <value>
-        /// The iron ore.
-        /// </value>
-        Texture2D IronOre { get; }
-
-        /// <summary>
-        /// Gets the stone ore texture.
-        /// </summary>
-        /// <value>
-        /// The stone ore.
-        /// </value>
-        Texture2D StoneOre { get; }
-
-        /// <summary>
-        /// Gets the cave texture.
-        /// </summary>
-        /// <value>
-        /// The cave.
-        /// </value>
-        Texture2D Cave { get; }
-
-        /// <summary>
-        /// Gets the coal ore texture.
-        /// </summary>
-        /// <value>
-        /// The coal ore.
-        /// </value>
-        Texture2D CoalOre { get; }
-
         /// <summary>
         /// Gets the bush texture.
         /// </summary>
@@ -122,6 +73,22 @@ namespace ProjectAona.Engine.Assets
         /// The default font.
         /// </value>
         SpriteFont DefaultFont { get; }
+
+        /// <summary>
+        /// Gets the mineral texture atlas.
+        /// </summary>
+        /// <value>
+        /// The mineral texture atlas.
+        /// </value>
+        Texture2D MineralTextureAtlas { get; }
+
+        /// <summary>
+        /// Gets the mineral texture atlas XML.
+        /// </summary>
+        /// <value>
+        /// The mineral texture atlas XML.
+        /// </value>
+        Dictionary<string, Rectangle> MineralTextureAtlasXML{ get; }
     }
 
     /// <summary>
@@ -131,54 +98,6 @@ namespace ProjectAona.Engine.Assets
     /// <seealso cref="ProjectAona.Engine.Assets.IAssetManager" />
     public class AssetManager : GameComponent, IAssetManager
     {
-        /// <summary>
-        /// Gets the stone test texture.
-        /// </summary>
-        /// <value>
-        /// The stone test texture.
-        /// </value>
-        public Texture2D StoneTestTexture { get; private set; }
-
-        /// <summary>
-        /// Gets the white test texture.
-        /// </summary>
-        /// <value>
-        /// The white test texture.
-        /// </value>
-        public Texture2D WhiteTestTexture { get; private set; }
-
-        /// <summary>
-        /// Gets the iron ore texture.
-        /// </summary>
-        /// <value>
-        /// The iron ore.
-        /// </value>
-        public Texture2D IronOre { get; private set; }
-
-        /// <summary>
-        /// Gets the stone ore texture.
-        /// </summary>
-        /// <value>
-        /// The stone ore.
-        /// </value>
-        public Texture2D StoneOre { get; private set; }
-
-        /// <summary>
-        /// Gets the cave texture.
-        /// </summary>
-        /// <value>
-        /// The cave.
-        /// </value>
-        public Texture2D Cave { get; private set; }
-
-        /// <summary>
-        /// Gets the coal ore texture.
-        /// </summary>
-        /// <value>
-        /// The coal ore.
-        /// </value>
-        public Texture2D CoalOre { get; private set; }
-
         /// <summary>
         /// Gets the bush texture.
         /// </summary>
@@ -244,6 +163,22 @@ namespace ProjectAona.Engine.Assets
         public SpriteFont DefaultFont { get; private set; }
 
         /// <summary>
+        /// Gets the mineral texture atlas.
+        /// </summary>
+        /// <value>
+        /// The mineral texture atlas.
+        /// </value>
+        public Texture2D MineralTextureAtlas { get; private set; }
+
+        /// <summary>
+        /// Gets the mineral texture atlas XML.
+        /// </summary>
+        /// <value>
+        /// The mineral texture atlas XML.
+        /// </value>
+        public Dictionary<string, Rectangle> MineralTextureAtlasXML { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AssetManager"/> class.
         /// </summary>
         /// <param name="game">The game.</param>
@@ -271,18 +206,11 @@ namespace ProjectAona.Engine.Assets
             // Set the content
             try
             {
-                // Test
-                StoneTestTexture = Game.Content.Load<Texture2D>("Textures\\stoneTex");
-                WhiteTestTexture = Game.Content.Load<Texture2D>("Textures\\whiteTex");
-
                 // Terrain
-                Cave = Game.Content.Load<Texture2D>("Textures\\Terrain\\cave");
-                CoalOre = Game.Content.Load<Texture2D>("Textures\\Terrain\\coalOre");
-                IronOre = Game.Content.Load<Texture2D>("Textures\\Terrain\\ironOre");
-                StoneOre = Game.Content.Load<Texture2D>("Textures\\Terrain\\stoneOre");
                 MapleTree = Game.Content.Load<Texture2D>("Textures\\Terrain\\mapleTree");
                 OakTree = Game.Content.Load<Texture2D>("Textures\\Terrain\\oakTree");
                 Bush = Game.Content.Load<Texture2D>("Textures\\Terrain\\bush");
+                MineralTextureAtlas = Game.Content.Load<Texture2D>("Textures\\Terrain\\mineralTextureAtlas");
 
                 // Tiles
                 LightGrassTile = Game.Content.Load<Texture2D>("Textures\\Tiles\\grass1Tile");
@@ -290,7 +218,11 @@ namespace ProjectAona.Engine.Assets
                 StoneTile = Game.Content.Load<Texture2D>("Textures\\Tiles\\stoneTile");
                 WaterTile = Game.Content.Load<Texture2D>("Textures\\Tiles\\waterTile");
 
+                // Font
                 DefaultFont = Game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
+
+                // Xml
+                MineralTextureAtlasXML = Game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\mineralTextureAtlas");
             }
             catch(Exception e)
             {

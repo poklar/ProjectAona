@@ -41,12 +41,12 @@ namespace ProjectAona.Engine.Tiles
         public Flora Flora { get; set; }
 
         /// <summary>
-        /// Gets or sets the mineral.
+        /// Gets or sets the wall.
         /// </summary>
         /// <value>
-        /// The mineral.
+        /// The wall.
         /// </value>
-        public Mineral Mineral { get; set; }
+        public Wall Wall { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Tile"/> class.

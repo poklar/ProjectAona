@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.TextureAtlases;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Graphics;
@@ -24,26 +25,26 @@ namespace ProjectAona.Engine.World
         Dictionary<Vector2, Flora> FloraObjects { get; }
 
         /// <summary>
-        /// Gets the mineral objects. The key will be the position.
+        /// Gets the wall objects. The key will be the position.
         /// </summary>
         /// <value>
-        /// The mineral objects.
+        /// The wall objects.
         /// </value>
-        Dictionary<Vector2, Mineral> MineralObjects { get; }
+        Dictionary<Vector2, Wall> WallObjects { get; }
 
         /// <summary>
-        /// Adds a mineral.
+        /// Adds a wall.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="tile">The tile.</param>
-        void AddMineral(MineralType type, Tile tile);
+        void AddWall(WallType type, Tile tile);
 
         /// <summary>
-        /// Removes a mineral.
+        /// Removes a wall.
         /// </summary>
-        /// <param name="mineral">The mineral.</param>
+        /// <param name="wall">The wall.</param>
         /// <param name="tile">The tile.</param>
-        void RemoveMineral(Mineral mineral, Tile tile);
+        void RemoveWall(Wall wall, Tile tile);
 
         /// <summary>
         /// Adds a flora.
@@ -76,12 +77,17 @@ namespace ProjectAona.Engine.World
         public Dictionary<Vector2, Flora> FloraObjects { get; private set; }
 
         /// <summary>
-        /// Gets the mineral objects. The key will be the position.
+        /// Gets the wall objects. The key will be the position.
         /// </summary>
         /// <value>
-        /// The mineral objects.
+        /// The wall objects.
         /// </value>
-        public Dictionary<Vector2, Mineral> MineralObjects { get; private set; }
+        public Dictionary<Vector2, Wall> WallObjects { get; private set; }
+
+        /// <summary>
+        /// The wall texture.
+        /// </summary>
+        private TextureAtlas _mineralTexture;
 
         /// <summary>
         /// The sprite batch.
@@ -113,7 +119,7 @@ namespace ProjectAona.Engine.World
             _spriteBatch = spriteBatch;
 
             FloraObjects = new Dictionary<Vector2, Flora>();
-            MineralObjects = new Dictionary<Vector2, Mineral>();
+            WallObjects = new Dictionary<Vector2, Wall>();
         }
 
         public override void Initialize()
@@ -125,6 +131,16 @@ namespace ProjectAona.Engine.World
 
             base.Initialize();
         }
+        /// <summary>
+        /// Loads the content.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            _mineralTexture = new TextureAtlas("mineralTextureAtlas", _assetManager.MineralTextureAtlas, _assetManager.MineralTextureAtlasXML);
+
+            base.LoadContent();
+        }
+
 
         /// <summary>
         /// Draws the specified game time.
@@ -148,10 +164,10 @@ namespace ProjectAona.Engine.World
         private void DrawTerrainObjects()
         {
             // Get all the currently loaded chunks
-            IChunkStorage loadedChunks = _chunkManager.CurrentlyLoadedChunks();
+            var visibleChunks = _chunkManager.VisibleChunks();
 
             // For each loaded chunks
-            foreach (var chunk in loadedChunks.Values)
+            foreach (var chunk in visibleChunks)
             {
                 // Loop through each tile
                 for (int x = 0; x < chunk.WidthInTiles; x++)
@@ -171,14 +187,17 @@ namespace ProjectAona.Engine.World
                             _spriteBatch.Draw(FloraTexture(flora.FloraType), flora.Position - _camera.Position, Color.White);
                         }
 
-                        // If a mineral object is positioned on the same as the tile
-                        if (MineralObjects.ContainsKey(position))
+                        // If a wall object is positioned on the same as the tile
+                        if (WallObjects.ContainsKey(position))
                         {
-                            // Get that mineral object
-                            Mineral mineral = MineralObjects[position];
+                            // Get that wall object
+                            Wall wall = WallObjects[position];
+                            
+                            // Select the correct wall sprite
+                            TextureRegion2D wallTexture = SelectWallSprite(wall);
 
                             // And draw it
-                            _spriteBatch.Draw(MineralTexture(mineral.Type), mineral.Position - _camera.Position, Color.White);
+                            _spriteBatch.Draw(wallTexture.Texture, wall.Position - _camera.Position, wallTexture.Bounds, Color.White);
                         }
                     }
                 }
@@ -209,25 +228,25 @@ namespace ProjectAona.Engine.World
         }
 
         /// <summary>
-        /// Adds a mineral.
+        /// Adds a wall.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="tile">The tile where the mineral will be positioned on.</param>
-        public void AddMineral(MineralType type, Tile tile)
+        /// <param name="tile">The tile where the wall will be positioned on.</param>
+        public void AddWall(WallType type, Tile tile)
         {
-            // If the tile already hasn't an object and if the mineral object doesn't already exists
-            if (!tile.IsOccupied && !MineralObjects.ContainsKey(tile.Position))
+            // If the tile already hasn't an object and if the wall object doesn't already exists
+            if (!tile.IsOccupied && !WallObjects.ContainsKey(tile.Position))
             {
-                // Create a new mineral object and set it to the tile's position and pass the mineral type
-                Mineral mineral = new Mineral(tile.Position, type);
+                // Create a new wall object and set it to the tile's position and pass the wall type
+                Wall wall = new Wall(tile.Position, type);
 
                 // Tile is occupied now
                 tile.IsOccupied = true;
-                // Pass the mineral object to the tile
-                tile.Mineral = mineral;
+                // Pass the wall object to the tile
+                tile.Wall = wall;
 
-                // Add the mineral object to the dictionary 
-                MineralObjects.Add(tile.Position, mineral);
+                // Add the wall object to the dictionary 
+                WallObjects.Add(tile.Position, wall);
             }
         }
 
@@ -243,14 +262,239 @@ namespace ProjectAona.Engine.World
         }
 
         /// <summary>
-        /// Removes a mineral.
+        /// Removes a wall.
         /// </summary>
-        /// <param name="mineral">The mineral.</param>
+        /// <param name="wall">The wall.</param>
         /// <param name="tile">The tile.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void RemoveMineral(Mineral mineral, Tile tile)
+        public void RemoveWall(Wall wall, Tile tile)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Select the wall sprite from the texture atlas.
+        /// </summary>
+        /// <param name="wall">The wall.</param>
+        /// <returns></returns>
+        // TODO: A wall should be notified if it is linked
+        // TODO: This function looks horrible, I should look into autotiling/bitmasking
+        private TextureRegion2D SelectWallSprite(Wall wall)
+        {
+            // Get the wall type and turn it into a string while adding "_" to it. Example: IronOre_
+            string wallName = wall.WallType + "_";
+
+            // First the function starts by checking the north, west, south and east (clockwise) tile if it is occupied by a wall
+            // For example if there's a wall north to the tile, it will add "N" to the string
+            // If the wall has a certain name, the northwest, southwest, southeast and/or northeast corner needs to be checked
+            // Each sprite has a unique name, for examle if the wall has a north/south/east wall then the added string will be "NSE"
+
+
+            // Get the position from the wall
+            Vector2 position = wall.Position;
+
+            // Create tile object
+            Tile tile;
+
+            // Get the tile NORTH from the wall
+            tile = _chunkManager.TileAt((int)position.X, (int)position.Y - 32);
+            // If the tile exists and the tile is occupied by a wall
+            if (tile != null && tile.IsOccupied && tile.Wall != null)
+            {
+                // Add N(orth) to the string name
+                wallName += "N";
+            }
+
+            // Get the tile WEST from the wall
+            tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y);
+            if (tile != null && tile.IsOccupied && tile.Wall != null)
+            {
+                // Add W(est) to the string name
+                wallName += "W";
+            }
+
+            // Get the tile SOUTH from the wall
+            tile = _chunkManager.TileAt((int)position.X, (int)position.Y + 32);
+            if (tile != null && tile.IsOccupied && tile.Wall != null)
+            {
+                // Add S(outh) to the string name
+                wallName += "S";
+            }
+
+            // Get the tile EAST from the wall
+            tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y);
+            if (tile != null && tile.IsOccupied && tile.Wall != null)
+            {
+                // Add E(ast) to the string name
+                wallName += "E";
+            }
+
+            // The wall is surrounded by north/west/south/east walls, check the diagonally walls to get the corresponding wall sprite
+            if (wallName == (wall.WallType.ToString() + "_NWSE"))
+            {
+                // Add _ to the string
+                wallName += "_";
+
+                // Get the tile NORTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    // Add N(orth)W(est) to the string name
+                    wallName += "NW";
+                }
+
+                // Get the tile SOUTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    // Add S(outh)W(est) to the string name
+                    wallName += "SW";
+                }
+
+                // Get the tile SOUTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    // Add S(outh)E(ast) to the string name
+                    wallName += "SE";
+                }
+
+                // Get the tile NORTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    // Add N(orth)E(ast) to the string name
+                    wallName += "NE";
+                }
+            }
+            // The wall is surrounded by west/south/east walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_WSE"))
+            {
+                wallName += "_";
+
+                // Get the tile SOUTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "SW";
+                }
+
+                // Get the tile SOUTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "SE";
+                }
+                
+            }
+            // The wall is surrounded by north/west/east walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_NWE"))
+            {
+                wallName += "_";
+
+                // Get the tile NORTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "NW";
+                }
+
+                // Get the tile NORTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "NE";
+                }
+            }
+            // The wall is surrounded by north/west/south walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_NWS"))
+            {
+                wallName += "_";
+
+                // Get the tile NORTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "NW";
+                }
+
+                // Get the tile SOUTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "SW";
+                }                
+            }
+            // The wall is surrounded by north/south/east walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_NSE"))
+            {
+                wallName += "_";
+
+                // Get the tile SOUTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "SE";
+                }
+
+                // Get the tile NORTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "NE";
+                }                
+            }
+            // The wall is surrounded by south/east walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_SE"))
+            {
+                // Get the tile SOUTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "_SE";
+                }
+            }
+            // The wall is surrounded by north/east walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_NE"))
+            {
+                // Get the tile NORTHEAST from the wall
+                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "_NE";
+                }
+            }
+            // The wall is surrounded by north/west walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_NW"))
+            {
+                // Get the tile NORTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "_NW";
+                }
+            }
+            // The wall is surrounded by west/south walls, check the diagonally walls to get the corresponding wall sprite
+            else if (wallName == (wall.WallType.ToString() + "_WS"))
+            {
+                // Get the tile SOUTHWEST from the wall
+                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                if (tile != null && tile.IsOccupied && tile.Wall != null)
+                {
+                    wallName += "_SW";
+                }
+            }
+
+            // For example, the wallName has now a string name like: IronOre_NWSE_NWSENE
+            // In the texture atlas is a sprite that corresponds to that name 
+
+            // Check if wallName has changed and if neighbor is till set
+            if (wallName == (wall.WallType.ToString() + "_") && wall.HasNeighbor)
+                    // Set to false since this wall doesn't have any neighbor's
+                    wall.HasNeighbor = false;
+
+            // Get the corresponding wall sprite from the texture atlas
+            return _mineralTexture[wallName];
         }
 
         /// <summary>
@@ -267,25 +511,6 @@ namespace ProjectAona.Engine.World
                 case FloraType.OakTree: return _assetManager.MapleTree;
                 case FloraType.PoplarTree: return _assetManager.OakTree;
                 case FloraType.RasberryBush: return _assetManager.Bush;
-                default: return null;
-            }
-        }
-
-        /// <summary>
-        /// Gets the texture from the mineral type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        // TODO: REMOVE, a texture atlas will be added later
-        private Texture2D MineralTexture(MineralType type)
-        {
-            // Get the corresponding texture
-            switch (type)
-            {
-                case MineralType.CoalOre: return _assetManager.CoalOre;
-                case MineralType.IronOre: return _assetManager.IronOre;
-                case MineralType.StoneOre: return _assetManager.StoneOre;
-                case MineralType.None: return _assetManager.Cave;
                 default: return null;
             }
         }

@@ -186,16 +186,14 @@ namespace ProjectAona.Engine.Chunk
         /// <param name="worldQuadrant">The world quadrant.</param>
         private void LoadOrCreateMissingChunk(Point worldQuadrant)
         {
-            // Create chunk object
-            Chunk chunk = null;
+            // Get the chunk object from the manager
+            Chunk chunk = _chunkManager.ChunkAt(worldQuadrant);
 
             // If chunk is in world bounds
-            if (_chunkManager.InWorldBounds(worldQuadrant))
+            if (chunk != null)
             {
                 // TODO: LOAD from disk if it exists.
-
-                chunk = new Chunk(worldQuadrant);
-
+                 
                 // Generate the chunk
                 _chunkGenerator.BuildChunk(chunk);
                 // Store the chunk in the storage

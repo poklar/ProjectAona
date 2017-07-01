@@ -6,7 +6,6 @@ using ProjectAona.Engine.Chunk.Generators;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
-using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.World;
 using System;
 
@@ -85,7 +84,6 @@ namespace ProjectAona.Engine.Core
             Game.Components.Add(new ChunkManager(Game, _spriteBatch));
             Game.Components.Add(new SimpleTerrain(Game));
             Game.Components.Add(new TerrainManager(Game, _spriteBatch));
-            Game.Components.Add(new TileTexture(Game));
             Game.Components.Add(new Camera(Game));
             Game.Components.Add(new ChunkStorage(Game));
             Game.Components.Add(new ChunkCache(Game));

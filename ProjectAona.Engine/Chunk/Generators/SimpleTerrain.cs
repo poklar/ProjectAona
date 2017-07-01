@@ -178,31 +178,31 @@ namespace ProjectAona.Engine.Chunk.Generators
             // If below a certain threshold, create minerals 
             if (noise < 0.04 && noise > 0.03f)
             {
-                _terrainManager.AddMineral(MineralType.IronOre, tile);
+                _terrainManager.AddWall(WallType.IronOre, tile);
             }
             else if (noise < 0.045 && noise > 0.04f)
             {
-                _terrainManager.AddMineral(MineralType.None, tile);
+                _terrainManager.AddWall(WallType.Cave, tile);
             }
             else if (noise < 0.055 && noise > 0.045f)
             {
-                _terrainManager.AddMineral(MineralType.StoneOre, tile);
+                _terrainManager.AddWall(WallType.StoneOre, tile);
             }
             else if (noise < 0.065 && noise > 0.055f)
             {
-                _terrainManager.AddMineral(MineralType.CoalOre, tile);
+                _terrainManager.AddWall(WallType.CoalOre, tile);
             }
             else if (noise < 0.09 && noise > 0.065f)
             {
-                _terrainManager.AddMineral(MineralType.None, tile);
+                _terrainManager.AddWall(WallType.Cave, tile);
             }
             else if (noise < 0.13 && noise > 0.09f)
             {
-                _terrainManager.AddMineral(MineralType.StoneOre, tile);
+                _terrainManager.AddWall(WallType.StoneOre, tile);
             }
             else if (noise < 0.15 && noise > 0.13f)
             {
-                _terrainManager.AddMineral(MineralType.None, tile);
+                _terrainManager.AddWall(WallType.Cave, tile);
             }
         }
 
