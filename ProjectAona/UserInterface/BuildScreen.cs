@@ -3,39 +3,28 @@ using ProjectAona.Engine.Assets;
 
 namespace ProjectAona.Test.UserInterface
 {
-    public interface IBuildInterface
+    public class BuildScreen
     {
+        private AssetManager _assetManager;
 
-    }
-
-    public class BuildInterface : DrawableGameComponent, IBuildInterface
-    {
-        private IAssetManager _assetManager;
-
-        public BuildInterface(Game game)
-            : base(game)
+        public BuildScreen(Game game, AssetManager assetManager)
         {
-            // Export service
-            Game.Services.AddService(typeof(IBuildInterface), this);
+            _assetManager = assetManager;
         }
 
-        public override void Initialize()
+        public void Initialize()
         {
-            // Get the services
-            _assetManager = (IAssetManager)Game.Services.GetService(typeof(IAssetManager));
+
+        }
+
+        public void Update(GameTime gameTime)
+        {
+
+        }
+
+        public void Draw(GameTime gameTime)
+        {
             
-            base.Initialize();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-
-            base.Draw(gameTime);
         }
     }
 }

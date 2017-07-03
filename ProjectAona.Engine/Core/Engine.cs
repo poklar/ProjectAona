@@ -2,10 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
-using ProjectAona.Engine.Chunk.Generators;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
-using ProjectAona.Engine.Input;
 using ProjectAona.Engine.World;
 using System;
 
@@ -34,6 +32,8 @@ namespace ProjectAona.Engine.Core
         /// </summary>
         private SpriteBatch _spriteBatch;
 
+        private GameLoop _gameLoop;
+
         public delegate void EngineStartHandler(object sender, EventArgs e);
         public event EngineStartHandler EngineStart;
 
@@ -41,7 +41,7 @@ namespace ProjectAona.Engine.Core
         {
             // Check if instance isn't set already
             if (_instance != null)
-                throw new Exception("You can not instantiate the Egine more than once");
+                throw new Exception("You can not instantiate the Engine more than once");
 
             // Set the instance
             _instance = this;
@@ -49,6 +49,8 @@ namespace ProjectAona.Engine.Core
             Game = game;
             Configuration = config;
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+            //_gameLoop.Game = game;
+            
 
             // Validate the config
             config.Validate();
@@ -59,7 +61,7 @@ namespace ProjectAona.Engine.Core
         /// </summary>
         public void Run()
         {
-            AddComponents();
+            Initialize();
             NotifyEngineStart(EventArgs.Empty);
         }
 
@@ -74,20 +76,48 @@ namespace ProjectAona.Engine.Core
                 handler(typeof(Engine), e);
         }
 
+        private AssetManager _assetManager;
+        private ChunkManager _chunkManager;
+        private Camera _camera;
+        private TerrainManager _terrainManager;
+
+        public AssetManager AssetManager { get { return _assetManager; } }
+        public Camera Camera { get { return _camera; } }
+
         /// <summary>
         /// Adds the components.
         /// </summary>
-        private void AddComponents()
+        public void Initialize()
         {
-            //Game.Components.Add(new InputManager(Game));
-            Game.Components.Add(new AssetManager(Game));
-            Game.Components.Add(new ChunkManager(Game, _spriteBatch));
-            Game.Components.Add(new SimpleTerrain(Game));
-            Game.Components.Add(new TerrainManager(Game, _spriteBatch));
-            Game.Components.Add(new Camera(Game));
-            Game.Components.Add(new ChunkStorage(Game));
-            Game.Components.Add(new ChunkCache(Game));
+            _assetManager = new AssetManager(Game);
+            _camera = new Camera(Game);
+
+            _chunkManager = new ChunkManager(Game, _spriteBatch, _camera, _assetManager);
+            _chunkManager.Initialize();
+
+            _terrainManager = new TerrainManager(Game, _spriteBatch, _camera, _assetManager, _chunkManager);
+
+            NotifyEngineStart(EventArgs.Empty);
         }
+
+        public void LoadContent()
+        {
+            _assetManager.LoadContent();
+            _terrainManager.LoadContent();
+            
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            _camera.Update(gameTime);
+        }
+
+        public void Draw(GameTime gameTime)
+        {
+            _chunkManager.Draw(gameTime);
+            _terrainManager.Draw(gameTime);
+        }
+
 
         /// <summary>
         /// The memory instance.

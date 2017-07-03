@@ -1,5 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk.Generators;
+using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.World;
 using System;
 using System.Collections.Generic;
@@ -10,65 +13,7 @@ namespace ProjectAona.Engine.Chunk
     /// <summary>
     /// The chunk cache.
     /// </summary>
-    public interface IChunkCache
-    {
-        /// <summary>
-        /// Gets or sets the maximum chunks in memory.
-        /// </summary>
-        /// <value>
-        /// The maximum chunks in memory.
-        /// </value>
-        int MaxChunksInMemory { get; set; }
-
-        /// <summary>
-        /// Gets the quadrants currently in memory.
-        /// </summary>
-        /// <value>
-        /// The quadrants currently in memory.
-        /// </value>
-        IEnumerable<Point> QuadrantsCurrentlyInMemory { get; }
-
-        /// <summary>
-        /// Gets the chunk storage.
-        /// </summary>
-        /// <value>
-        /// The chunk storage.
-        /// </value>
-        IChunkStorage ChunkStorage { get; }
-
-        /// <summary>
-        /// Gets the chunk at the world quadrant.
-        /// </summary>
-        /// <param name="worldQuadrant">The world quadrant.</param>
-        /// <returns></returns>
-        Chunk GetChunkAt(Point worldQuadrant);
-
-        /// <summary>
-        /// Preloads the chunk at the world quadrant.
-        /// </summary>
-        /// <param name="worldQuadrant">The world quadrant.</param>
-        void PreloadChunkAt(Point worldQuadrant);
-
-        /// <summary>
-        /// Unloads the chunk at the world quadrant.
-        /// </summary>
-        /// <param name="worldQuadrant">The world quadrant.</param>
-        void UnloadChunkAt(Point worldQuadrant);
-
-        /// <summary>
-        /// Gets a list of visible chunks.
-        /// </summary>
-        /// <param name="viewPort">The view port.</param>
-        /// <returns></returns>
-        IEnumerable<Chunk> GetVisibleChunks(Rectangle viewPort);
-    }
-
-    /// <summary>
-    /// The chunk cache.
-    /// </summary>
-    /// <seealso cref="Microsoft.Xna.Framework.GameComponent" />
-    /// <seealso cref="ProjectAona.Engine.Chunk.IChunkCache" />
-    public class ChunkCache : GameComponent, IChunkCache
+    public class ChunkCache
     {
         /// <summary>
         /// Gets the quadrants currently in memory.
@@ -84,7 +29,7 @@ namespace ProjectAona.Engine.Chunk
         /// <value>
         /// The chunk storage.
         /// </value>
-        public IChunkStorage ChunkStorage { get; private set; }
+        public ChunkStorage ChunkStorage { get; private set; }
 
         /// <summary>
         /// Gets or sets the maximum chunks in memory.
@@ -105,49 +50,24 @@ namespace ProjectAona.Engine.Chunk
         private readonly int _chunkHeight;
 
         /// <summary>
-        /// The chunk manager.
-        /// </summary>
-        private IChunkManager _chunkManager;
-
-        /// <summary>
         /// The chunk generator.
         /// </summary>
         private ITerrainGenerator _chunkGenerator;
-
-        /// <summary>
-        /// The terrain manager.
-        /// </summary>
-        private ITerrainManager _terrainManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChunkCache"/> class.
         /// </summary>
         /// <param name="game">The game.</param>
         /// <param name="maxMapsInMemory">The maximum maps in memory.</param>
-        public ChunkCache(Game game, int maxMapsInMemory = 16)
-            : base(game)
+        public ChunkCache(int maxMapsInMemory = 16)
         {
-            // Export service
-            Game.Services.AddService(typeof(IChunkCache), this);
 
             // Setters
             MaxChunksInMemory = maxMapsInMemory;
             _chunkWidth = Core.Engine.Instance.Configuration.Chunk.WidthInTiles * 32; // 32 pixels
             _chunkHeight = Core.Engine.Instance.Configuration.Chunk.HeightInTiles * 32; // 32 pixels
-        }
-
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        public override void Initialize()
-        {
-            // Get services
-            ChunkStorage = (IChunkStorage)Game.Services.GetService(typeof(IChunkStorage));
-            _chunkManager = (IChunkManager)Game.Services.GetService(typeof(IChunkManager));
-            _chunkGenerator = (ITerrainGenerator)Game.Services.GetService(typeof(ITerrainGenerator));
-            _terrainManager = (ITerrainManager)Game.Services.GetService(typeof(ITerrainManager));
-
-            base.Initialize();
+            _chunkGenerator = new SimpleTerrain();
+            ChunkStorage = new ChunkStorage();
         }
 
         /// <summary>
@@ -186,8 +106,8 @@ namespace ProjectAona.Engine.Chunk
         /// <param name="worldQuadrant">The world quadrant.</param>
         private void LoadOrCreateMissingChunk(Point worldQuadrant)
         {
-            // Get the chunk object from the manager
-            Chunk chunk = _chunkManager.ChunkAt(worldQuadrant);
+            // Create chunk object
+            Chunk chunk = ChunkManager.ChunkAt(worldQuadrant);
 
             // If chunk is in world bounds
             if (chunk != null)

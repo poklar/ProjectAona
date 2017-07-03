@@ -9,23 +9,14 @@ namespace ProjectAona.Engine.Chunk.Generators
     /// <summary>
     /// Simple terrain generator.
     /// </summary>
-    public class SimpleTerrain : GameComponent, ITerrainGenerator
+    public class SimpleTerrain : ITerrainGenerator
     {
-        private ITerrainManager _terrainManager;
-
-        public SimpleTerrain(Game game)
-            : base(game)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleTerrain"/> class.
+        /// </summary>
+        public SimpleTerrain()
         {
-            // Export service
-            Game.Services.AddService(typeof(ITerrainGenerator), this);
-        }
 
-        public override void Initialize()
-        {
-            // Get service
-            _terrainManager = (ITerrainManager)Game.Services.GetService(typeof(ITerrainManager));
-
-            base.Initialize();
         }
 
         /// <summary>
@@ -80,7 +71,7 @@ namespace ProjectAona.Engine.Chunk.Generators
             // None generated tile is grass
             TileType tileType = TileType.LightGrass;
 
-            Tile tile = chunk.Tiles[tileXInChunk, tileYInChunk];
+            Tile tile = chunk.TileAt(tileXInChunk, tileYInChunk);
    
             // If below this threshold
             if (noise < 0.45f && noise > 0.391f)
@@ -150,15 +141,15 @@ namespace ProjectAona.Engine.Chunk.Generators
             // If below the threshold, create trees or bushes
             if (noise < 0.75 && noise > 0.70f)
             {
-                _terrainManager.AddFlora(FloraType.OakTree, tile);
+                TerrainManager.AddFlora(FloraType.OakTree, tile);
             }
             else if (noise < 0.81 && noise > 0.80f)
             {
-                _terrainManager.AddFlora(FloraType.RasberryBush, tile);
+                TerrainManager.AddFlora(FloraType.RasberryBush, tile);
             }
             else if (noise < 0.97 && noise > 0.94f)
             {
-                _terrainManager.AddFlora(FloraType.PoplarTree, tile);
+                TerrainManager.AddFlora(FloraType.PoplarTree, tile);
             }
         }
 
@@ -178,31 +169,31 @@ namespace ProjectAona.Engine.Chunk.Generators
             // If below a certain threshold, create minerals 
             if (noise < 0.04 && noise > 0.03f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.IronOre, tile);
+                TerrainManager.AddWall(LinkedSpriteType.IronOre, tile);
             }
             else if (noise < 0.045 && noise > 0.04f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.Cave, tile);
+                TerrainManager.AddWall(LinkedSpriteType.Cave, tile);
             }
             else if (noise < 0.055 && noise > 0.045f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.StoneOre, tile);
+                TerrainManager.AddWall(LinkedSpriteType.StoneOre, tile);
             }
             else if (noise < 0.065 && noise > 0.055f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.CoalOre, tile);
+                TerrainManager.AddWall(LinkedSpriteType.CoalOre, tile);
             }
             else if (noise < 0.09 && noise > 0.065f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.Cave, tile);
+                TerrainManager.AddWall(LinkedSpriteType.Cave, tile);
             }
             else if (noise < 0.13 && noise > 0.09f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.StoneOre, tile);
+                TerrainManager.AddWall(LinkedSpriteType.StoneOre, tile);
             }
             else if (noise < 0.15 && noise > 0.13f)
             {
-                _terrainManager.AddWall(LinkedSpriteType.Cave, tile);
+                TerrainManager.AddWall(LinkedSpriteType.Cave, tile);
             }
         }
 

@@ -4,22 +4,14 @@ using ProjectAona.Engine.Graphics;
 
 namespace ProjectAona.Test
 {
-    public interface IPlayer
+    public class Player
     {
-
-    }
-
-    public class Player : GameComponent, IPlayer
-    {
-        /// <summary>
-        /// The camera controller.
-        /// </summary>
-        private ICameraController _cameraController;
+        private Game _game;
 
         /// <summary>
         /// The camera.
         /// </summary>
-        private ICamera _camera;
+        private Camera _camera;
 
         /// <summary>
         /// The previous mouse state.
@@ -40,54 +32,30 @@ namespace ProjectAona.Test
         /// Initializes a new instance of the <see cref="Player"/> class.
         /// </summary>
         /// <param name="game">The game.</param>
-        public Player(Game game)
-            : base(game)
+        /// <param name="camera">The camera.</param>
+        public Player(Game game, Camera camera)
         {
-            // Export service.
-            Game.Services.AddService(typeof(IPlayer), this);
-        }
-
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        public override void Initialize()
-        {
-            // Get services
-            _cameraController = (ICameraController)Game.Services.GetService(typeof(ICameraController));
-            _camera = (ICamera)Game.Services.GetService(typeof(ICamera));
+            _game = game;
+            _camera = camera;
 
             // Setters
             _previousMouseState = Mouse.GetState();
             _previousScrollValue = _previousMouseState.ScrollWheelValue;
             _previousKeyboardState = Keyboard.GetState();
-
-            int i = 72;
-
-            i -= i % 32;
-
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             ProcessKeyboard(gameTime);
             ProcessMouse();
 
             // TODO: Add state if buildmode
             OnSelection();
-
-            base.Update(gameTime);
         }
 
         private void OnSelection()
         {
             MouseState mouseState = Mouse.GetState();
-
-            int positionX = mouseState.X;
-            int positionY = mouseState.Y;
-
-            Tile tile = 
-
-
         }
 
         /// <summary>
@@ -100,7 +68,7 @@ namespace ProjectAona.Test
 
             // Allows quick exiting of the game.
             if (currentState.IsKeyDown(Keys.Escape))
-                Game.Exit();
+                _game.Exit();
 
             // TODO: Get this from a config file (player/world)
             float moveSpeed = 3;
@@ -112,25 +80,25 @@ namespace ProjectAona.Test
             {
                 // Calculate position and move camera
                 position -= Vector2.UnitY * moveSpeed;
-                _cameraController.MoveCamera(position);
+                _camera.MoveCamera(position);
             }
             if (currentState.IsKeyDown(Keys.Down))
             {
                 // Calculate position and move camera
                 position += Vector2.UnitY * moveSpeed;
-                _cameraController.MoveCamera(position);
+                _camera.MoveCamera(position);
             }
             if (currentState.IsKeyDown(Keys.Left))
             {
                 // Calculate position and move camera
                 position -= Vector2.UnitX * moveSpeed;
-                _cameraController.MoveCamera(position);
+                _camera.MoveCamera(position);
             }
             if (currentState.IsKeyDown(Keys.Right))
             {
                 // Calculate position and move camera
                 position += Vector2.UnitX * moveSpeed;
-                _cameraController.MoveCamera(position);
+                _camera.MoveCamera(position);
             }
         }
 
@@ -146,12 +114,12 @@ namespace ProjectAona.Test
             if (currentMouseState.ScrollWheelValue < _previousScrollValue)
             {
                 zoom -= scale;
-                _cameraController.UpdateZoom(zoom);
+                _camera.UpdateZoom(zoom);
             }
             else if (currentMouseState.ScrollWheelValue > _previousScrollValue)
             {
                 zoom += scale;
-                _cameraController.UpdateZoom(zoom);
+                _camera.UpdateZoom(zoom);
             }
 
             _previousScrollValue = currentMouseState.ScrollWheelValue;

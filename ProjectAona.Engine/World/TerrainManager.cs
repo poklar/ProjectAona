@@ -12,82 +12,24 @@ using System.Collections.Generic;
 namespace ProjectAona.Engine.World
 {
     /// <summary>
-    /// The terrain manager interface.
-    /// </summary>
-    public interface ITerrainManager
-    {
-        /// <summary>
-        /// Gets the flora objects. The key will be the position.
-        /// </summary>
-        /// <value>
-        /// The flora objects.
-        /// </value>
-        Dictionary<Vector2, Flora> FloraObjects { get; }
-
-        /// <summary>
-        /// Gets the wall objects. The key will be the position.
-        /// </summary>
-        /// <value>
-        /// The wall objects.
-        /// </value>
-        Dictionary<Vector2, Wall> WallObjects { get; }
-
-        /// <summary>
-        /// Adds a wall.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="tile">The tile.</param>
-        void AddWall(LinkedSpriteType type, Tile tile);
-
-        /// <summary>
-        /// Removes a wall.
-        /// </summary>
-        /// <param name="wall">The wall.</param>
-        /// <param name="tile">The tile.</param>
-        void RemoveWall(Wall wall, Tile tile);
-
-        /// <summary>
-        /// Adds a flora.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="tile">The tile.</param>
-        void AddFlora(FloraType type, Tile tile);
-
-        /// <summary>
-        /// Removes a flora.
-        /// </summary>
-        /// <param name="flora">The flora.</param>
-        /// <param name="tile">The tile.</param>
-        void RemoveFlora(Flora flora, Tile tile);
-    }
-
-    /// <summary>
     /// The terrain manager. 
     /// </summary>
-    /// <seealso cref="Microsoft.Xna.Framework.DrawableGameComponent" />
-    /// <seealso cref="ProjectAona.Engine.World.ITerrainManager" />
-    public class TerrainManager : DrawableGameComponent, ITerrainManager
+    public class TerrainManager
     {
         /// <summary>
-        /// Gets the flora objects. The key will be the position.
+        /// The flora objects. The key will be the position.
         /// </summary>
-        /// <value>
-        /// The flora objects.
-        /// </value>
-        public Dictionary<Vector2, Flora> FloraObjects { get; private set; }
+        private static Dictionary<Vector2, Flora> _floraObjects;
 
         /// <summary>
-        /// Gets the wall objects. The key will be the position.
+        /// The wall objects. The key will be the position.
         /// </summary>
-        /// <value>
-        /// The wall objects.
-        /// </value>
-        public Dictionary<Vector2, Wall> WallObjects { get; private set; }
+        private static Dictionary<Vector2, Wall> _wallObjects;
 
         /// <summary>
         /// The wall texture.
         /// </summary>
-        private TextureAtlas _mineralTexture;
+        private TextureAtlas _wallsSelections;
 
         /// <summary>
         /// The sprite batch.
@@ -97,48 +39,42 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// The asset manager.
         /// </summary>
-        private IAssetManager _assetManager;
+        private AssetManager _assetManager;
 
         /// <summary>
         /// The chunk manager.
         /// </summary>
-        private IChunkManager _chunkManager;
+        private ChunkManager _chunkManager;
 
         /// <summary>
         /// The camera.
         /// </summary>
-        private ICamera _camera;
+        private Camera _camera;
 
-        public TerrainManager(Game game, SpriteBatch spriteBatch)
-            : base(game)
+        /// <summary>
+        /// The game
+        /// </summary>
+        private Game _game;
+
+        public TerrainManager(Game game, SpriteBatch spriteBatch, Camera camera, AssetManager assetManager, ChunkManager chunkManager)
         {
-            // Export service
-            Game.Services.AddService(typeof(ITerrainManager), this);
-
             // Setters
+            _game = game;
             _spriteBatch = spriteBatch;
+            _camera = camera;
+            _assetManager = assetManager;
+            _chunkManager = chunkManager;            
 
-            FloraObjects = new Dictionary<Vector2, Flora>();
-            WallObjects = new Dictionary<Vector2, Wall>();
+            _floraObjects = new Dictionary<Vector2, Flora>();
+            _wallObjects = new Dictionary<Vector2, Wall>();
         }
-
-        public override void Initialize()
-        {
-            // Get services
-            _assetManager = (IAssetManager)Game.Services.GetService(typeof(IAssetManager));
-            _chunkManager = (IChunkManager)Game.Services.GetService(typeof(IChunkManager));
-            _camera = (ICamera)Game.Services.GetService(typeof(ICamera));
-
-            base.Initialize();
-        }
+        
         /// <summary>
         /// Loads the content.
         /// </summary>
-        protected override void LoadContent()
+        public void LoadContent()
         {
-            _mineralTexture = new TextureAtlas("mineralTextureAtlas", _assetManager.WallsSelectionsTextureAtlas, _assetManager.WallsSelectionsTextureAtlasXML);
-
-            base.LoadContent();
+            _wallsSelections = new TextureAtlas("wallsSelectionsTextureAtlas", _assetManager.WallsSelectionsTextureAtlas, _assetManager.WallsSelectionsTextureAtlasXML);
         }
 
 
@@ -146,7 +82,7 @@ namespace ProjectAona.Engine.World
         /// Draws the specified game time.
         /// </summary>
         /// <param name="gameTime">The game time.</param>
-        public override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
         {
             // Start drawing
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
@@ -154,8 +90,6 @@ namespace ProjectAona.Engine.World
             DrawTerrainObjects();
 
             _spriteBatch.End();
-
-            base.Draw(gameTime);
         }
 
         /// <summary>
@@ -175,23 +109,23 @@ namespace ProjectAona.Engine.World
                     for (int y = 0; y < chunk.HeightInTiles; y++)
                     {
                         // Get the position from the tile
-                        Vector2 position = chunk.Tiles[x, y].Position;
+                        Vector2 position = chunk.TileAt(x, y).Position;
 
                         // If a flora object is positioned on the same as the tile
-                        if (FloraObjects.ContainsKey(position))
+                        if (_floraObjects.ContainsKey(position))
                         {
                             // Get that flora object
-                            Flora flora = FloraObjects[position];
+                            Flora flora = _floraObjects[position];
 
                             // And draw it 
                             _spriteBatch.Draw(FloraTexture(flora.FloraType), flora.Position - _camera.Position, Color.White);
                         }
 
                         // If a wall object is positioned on the same as the tile
-                        if (WallObjects.ContainsKey(position))
+                        if (_wallObjects.ContainsKey(position))
                         {
                             // Get that wall object
-                            Wall wall = WallObjects[position];
+                            Wall wall = _wallObjects[position];
                             
                             // Select the correct wall sprite
                             TextureRegion2D wallTexture = SelectWallSprite(wall);
@@ -209,10 +143,10 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="floraType">The flora type.</param>
         /// <param name="tile">The tile where the flora will be positioned on.</param>
-        public void AddFlora(FloraType floraType, Tile tile)
+        public static void AddFlora(FloraType floraType, Tile tile)
         {
             // If the tile already hasn't an object and if the flora object doesn't already exists
-            if (!tile.IsOccupied && !FloraObjects.ContainsKey(tile.Position))
+            if (!tile.IsOccupied && !_floraObjects.ContainsKey(tile.Position))
             {
                 // Create a new flora object and set it to the tile's position and pass the flora type
                 Flora flora = new Flora(tile.Position, floraType);
@@ -223,7 +157,7 @@ namespace ProjectAona.Engine.World
                 tile.Flora = flora;
 
                 // Add the flora object to the dictionary 
-                FloraObjects.Add(tile.Position, flora);                   
+                _floraObjects.Add(tile.Position, flora);                   
             }
         }
 
@@ -232,10 +166,10 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="tile">The tile where the wall will be positioned on.</param>
-        public void AddWall(LinkedSpriteType type, Tile tile)
+        public static void AddWall(LinkedSpriteType type, Tile tile)
         {
             // If the tile already hasn't an object and if the wall object doesn't already exists
-            if (!tile.IsOccupied && !WallObjects.ContainsKey(tile.Position))
+            if (!tile.IsOccupied && !_wallObjects.ContainsKey(tile.Position))
             {
                 // Create a new wall object and set it to the tile's position and pass the wall type
                 Wall wall = new Wall(tile.Position, type);
@@ -246,7 +180,7 @@ namespace ProjectAona.Engine.World
                 tile.Wall = wall;
 
                 // Add the wall object to the dictionary 
-                WallObjects.Add(tile.Position, wall);
+                _wallObjects.Add(tile.Position, wall);
             }
         }
 
@@ -297,7 +231,7 @@ namespace ProjectAona.Engine.World
             Tile tile;
 
             // Get the tile NORTH from the wall
-            tile = _chunkManager.TileAt((int)position.X, (int)position.Y - 32);
+            tile = _chunkManager.TileAtWorldPosition((int)position.X, (int)position.Y - 32);
             // If the tile exists and the tile is occupied by a wall
             if (tile != null && tile.IsOccupied && tile.Wall != null)
             {
@@ -306,7 +240,7 @@ namespace ProjectAona.Engine.World
             }
 
             // Get the tile WEST from the wall
-            tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y);
+            tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y);
             if (tile != null && tile.IsOccupied && tile.Wall != null)
             {
                 // Add W(est) to the string name
@@ -314,7 +248,7 @@ namespace ProjectAona.Engine.World
             }
 
             // Get the tile SOUTH from the wall
-            tile = _chunkManager.TileAt((int)position.X, (int)position.Y + 32);
+            tile = _chunkManager.TileAtWorldPosition((int)position.X, (int)position.Y + 32);
             if (tile != null && tile.IsOccupied && tile.Wall != null)
             {
                 // Add S(outh) to the string name
@@ -322,7 +256,7 @@ namespace ProjectAona.Engine.World
             }
 
             // Get the tile EAST from the wall
-            tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y);
+            tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y);
             if (tile != null && tile.IsOccupied && tile.Wall != null)
             {
                 // Add E(ast) to the string name
@@ -336,7 +270,7 @@ namespace ProjectAona.Engine.World
                 wallName += "_";
 
                 // Get the tile NORTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     // Add N(orth)W(est) to the string name
@@ -344,7 +278,7 @@ namespace ProjectAona.Engine.World
                 }
 
                 // Get the tile SOUTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     // Add S(outh)W(est) to the string name
@@ -352,7 +286,7 @@ namespace ProjectAona.Engine.World
                 }
 
                 // Get the tile SOUTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     // Add S(outh)E(ast) to the string name
@@ -360,7 +294,7 @@ namespace ProjectAona.Engine.World
                 }
 
                 // Get the tile NORTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     // Add N(orth)E(ast) to the string name
@@ -373,14 +307,14 @@ namespace ProjectAona.Engine.World
                 wallName += "_";
 
                 // Get the tile SOUTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "SW";
                 }
 
                 // Get the tile SOUTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "SE";
@@ -393,14 +327,14 @@ namespace ProjectAona.Engine.World
                 wallName += "_";
 
                 // Get the tile NORTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "NW";
                 }
 
                 // Get the tile NORTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "NE";
@@ -412,14 +346,14 @@ namespace ProjectAona.Engine.World
                 wallName += "_";
 
                 // Get the tile NORTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "NW";
                 }
 
                 // Get the tile SOUTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "SW";
@@ -431,14 +365,14 @@ namespace ProjectAona.Engine.World
                 wallName += "_";
 
                 // Get the tile SOUTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "SE";
                 }
 
                 // Get the tile NORTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "NE";
@@ -448,7 +382,7 @@ namespace ProjectAona.Engine.World
             else if (wallName == (linkedSprite.Type.ToString() + "_SE"))
             {
                 // Get the tile SOUTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "_SE";
@@ -458,7 +392,7 @@ namespace ProjectAona.Engine.World
             else if (wallName == (linkedSprite.Type.ToString() + "_NE"))
             {
                 // Get the tile NORTHEAST from the wall
-                tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X - 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "_NE";
@@ -468,7 +402,7 @@ namespace ProjectAona.Engine.World
             else if (wallName == (linkedSprite.Type.ToString() + "_NW"))
             {
                 // Get the tile NORTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y - 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "_NW";
@@ -478,7 +412,7 @@ namespace ProjectAona.Engine.World
             else if (wallName == (linkedSprite.Type.ToString() + "_WS"))
             {
                 // Get the tile SOUTHWEST from the wall
-                tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
+                tile = _chunkManager.TileAtWorldPosition((int)position.X + 32, (int)position.Y + 32);
                 if (tile != null && tile.IsOccupied && tile.Wall != null)
                 {
                     wallName += "_SW";
@@ -494,7 +428,7 @@ namespace ProjectAona.Engine.World
                     linkedSprite.HasNeighbor = false;
 
             // Get the corresponding wall sprite from the texture atlas
-            return _mineralTexture[wallName];
+            return _wallsSelections[wallName];
         }
 
         /// <summary>

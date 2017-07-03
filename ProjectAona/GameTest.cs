@@ -16,6 +16,11 @@ namespace ProjectAona.Test
 
         public GraphicsManager GraphicsManager { get; private set; }
 
+        private Engine.Core.Engine _engine;
+
+        private Player _player;
+        private BuildScreen _buildScreen;
+
         public GameTest()
         {
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
@@ -40,19 +45,16 @@ namespace ProjectAona.Test
             EngineConfig config = new EngineConfig();
 
             // Create the engine
-            var engine = new Engine.Core.Engine(this, config);
+            _engine = new Engine.Core.Engine(this, config);
 
             // Start the screen manager
             GraphicsManager = new GraphicsManager(_graphicsDeviceManager, this);
 
             // Add the engine listener
-            engine.EngineStart += OnEngineStart;
+            _engine.EngineStart += OnEngineStart;
 
             // Start the engine
-            engine.Run();
-
-            Components.Add(new BuildInterface(this));
-            Components.Add(new Player(this));
+            _engine.Run();
 
             base.Initialize();
         }
@@ -60,7 +62,8 @@ namespace ProjectAona.Test
         private void OnEngineStart(object sender, EventArgs e)
         {
             // TODO: What to do here?
-            
+            _player = new Player(this, _engine.Camera);
+            _buildScreen = new BuildScreen(this, _engine.AssetManager);
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace ProjectAona.Test
         /// </summary>
         protected override void LoadContent()
         {
-
+            _engine.LoadContent();
         }
 
         /// <summary>
@@ -88,6 +91,9 @@ namespace ProjectAona.Test
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            _engine.Update(gameTime);
+            _player.Update(gameTime);
+
             base.Update(gameTime);
         }
 
@@ -99,6 +105,7 @@ namespace ProjectAona.Test
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            _engine.Draw(gameTime);
 
             base.Draw(gameTime);
         }

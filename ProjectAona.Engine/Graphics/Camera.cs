@@ -5,66 +5,7 @@ namespace ProjectAona.Engine.Graphics
     /// <summary>
     /// The camera.
     /// </summary>
-    public interface ICamera
-    {
-        /// <summary>
-        /// Gets the zoom.
-        /// </summary>
-        /// <value>
-        /// The zoom.
-        /// </value>
-        float Zoom { get; }
-
-        /// <summary>
-        /// Gets the position.
-        /// </summary>
-        /// <value>
-        /// The position.
-        /// </value>
-        Vector2 Position { get; }
-
-        /// <summary>
-        /// Gets the view.
-        /// </summary>
-        /// <value>
-        /// The view.
-        /// </value>
-        Matrix View { get; }
-
-        /// <summary>
-        /// Gets the screen rectangle (view).
-        /// </summary>
-        /// <value>
-        /// The screen rectangle.
-        /// </value>
-        Rectangle ScreenRectangle { get; }
-    }
-
-    /// <summary>
-    /// The camera controller.
-    /// </summary>
-    public interface ICameraController
-    {
-        /// <summary>
-        /// Moves the camera.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        void MoveCamera(Vector2 position);
-
-        /// <summary>
-        /// Updates the zoom.
-        /// </summary>
-        /// <param name="zoom">The zoom.</param>
-        void UpdateZoom(float zoom);
-    }
-
-    /// <summary>
-    /// The camera.
-    /// </summary>
-    /// <seealso cref="Microsoft.Xna.Framework.GameComponent" />
-    /// <seealso cref="ProjectAona.Engine.Graphics.ICamera" />
-    /// <seealso cref="ProjectAona.Engine.Graphics.ICameraController" />
-    public class Camera : GameComponent, ICamera, ICameraController
+    public class Camera
     {
         /// <summary>
         /// Gets the position.
@@ -99,20 +40,23 @@ namespace ProjectAona.Engine.Graphics
         /// </summary>
         private float _zoom;
 
+        /// <summary>
+        /// The bounds.
+        /// </summary>
         private Rectangle _bounds;
+
+        /// <summary>
+        /// The game
+        /// </summary>
+        private Game _game;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Camera"/> class.
         /// </summary>
         /// <param name="game">The game.</param>
         public Camera(Game game)
-            : base(game)
         {
-            // Export services
-            game.Services.AddService(typeof(ICamera), this);
-            game.Services.AddService(typeof(ICameraController), this);
-
-            // Setters
+            _game = game;
             Zoom = 1.0f;
             Position = Vector2.Zero;
         }
@@ -127,10 +71,10 @@ namespace ProjectAona.Engine.Graphics
         /// Updates the specified game time.
         /// </summary>
         /// <param name="gameTime">The game time.</param>
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             // Get the viewport boundary
-            viewPort = Game.GraphicsDevice.Viewport.Bounds;
+            viewPort = _game.GraphicsDevice.Viewport.Bounds;
             _bounds = new Rectangle((int)Position.X, (int)Position.Y, (int)(viewPort.Width / Zoom), (int)(viewPort.Height / Zoom));
 
             // Change viewport's position
@@ -140,10 +84,7 @@ namespace ProjectAona.Engine.Graphics
 
             View = //Matrix.CreateTranslation(-Position.X, -Position.Y, 0) *
                    Matrix.CreateScale(Zoom, Zoom, 1.0f);
-                   Matrix.CreateTranslation(viewPort.Width / 2, viewPort.Height / 2, 0.0f);
-
-
-            base.Update(gameTime);
+                   Matrix.CreateTranslation(viewPort.Width / 2, viewPort.Height / 2, 0.0f);;
         }
 
         /// <summary>
