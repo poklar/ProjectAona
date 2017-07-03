@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Test.UserInterface;
 using System;
 
 namespace ProjectAona.Test
@@ -50,12 +51,16 @@ namespace ProjectAona.Test
             // Start the engine
             engine.Run();
 
+            Components.Add(new BuildInterface(this));
+            Components.Add(new Player(this));
+
             base.Initialize();
         }
 
         private void OnEngineStart(object sender, EventArgs e)
         {
             // TODO: What to do here?
+            
         }
 
         /// <summary>
@@ -64,7 +69,7 @@ namespace ProjectAona.Test
         /// </summary>
         protected override void LoadContent()
         {
-            
+
         }
 
         /// <summary>

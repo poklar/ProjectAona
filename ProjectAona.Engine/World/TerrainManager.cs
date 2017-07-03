@@ -37,7 +37,7 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="tile">The tile.</param>
-        void AddWall(WallType type, Tile tile);
+        void AddWall(LinkedSpriteType type, Tile tile);
 
         /// <summary>
         /// Removes a wall.
@@ -136,7 +136,7 @@ namespace ProjectAona.Engine.World
         /// </summary>
         protected override void LoadContent()
         {
-            _mineralTexture = new TextureAtlas("mineralTextureAtlas", _assetManager.MineralTextureAtlas, _assetManager.MineralTextureAtlasXML);
+            _mineralTexture = new TextureAtlas("mineralTextureAtlas", _assetManager.WallsSelectionsTextureAtlas, _assetManager.WallsSelectionsTextureAtlasXML);
 
             base.LoadContent();
         }
@@ -232,7 +232,7 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="tile">The tile where the wall will be positioned on.</param>
-        public void AddWall(WallType type, Tile tile)
+        public void AddWall(LinkedSpriteType type, Tile tile)
         {
             // If the tile already hasn't an object and if the wall object doesn't already exists
             if (!tile.IsOccupied && !WallObjects.ContainsKey(tile.Position))
@@ -275,14 +275,14 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Select the wall sprite from the texture atlas.
         /// </summary>
-        /// <param name="wall">The wall.</param>
+        /// <param name="linkedSprite">The object.</param>
         /// <returns></returns>
         // TODO: A wall should be notified if it is linked
         // TODO: This function looks horrible, I should look into autotiling/bitmasking
-        private TextureRegion2D SelectWallSprite(Wall wall)
+        private TextureRegion2D SelectWallSprite(LinkedSprite linkedSprite)
         {
             // Get the wall type and turn it into a string while adding "_" to it. Example: IronOre_
-            string wallName = wall.WallType + "_";
+            string wallName = linkedSprite.Type + "_";
 
             // First the function starts by checking the north, west, south and east (clockwise) tile if it is occupied by a wall
             // For example if there's a wall north to the tile, it will add "N" to the string
@@ -291,7 +291,7 @@ namespace ProjectAona.Engine.World
 
 
             // Get the position from the wall
-            Vector2 position = wall.Position;
+            Vector2 position = linkedSprite.Position;
 
             // Create tile object
             Tile tile;
@@ -330,7 +330,7 @@ namespace ProjectAona.Engine.World
             }
 
             // The wall is surrounded by north/west/south/east walls, check the diagonally walls to get the corresponding wall sprite
-            if (wallName == (wall.WallType.ToString() + "_NWSE"))
+            if (wallName == (linkedSprite.Type.ToString() + "_NWSE"))
             {
                 // Add _ to the string
                 wallName += "_";
@@ -368,7 +368,7 @@ namespace ProjectAona.Engine.World
                 }
             }
             // The wall is surrounded by west/south/east walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_WSE"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_WSE"))
             {
                 wallName += "_";
 
@@ -388,7 +388,7 @@ namespace ProjectAona.Engine.World
                 
             }
             // The wall is surrounded by north/west/east walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_NWE"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_NWE"))
             {
                 wallName += "_";
 
@@ -407,7 +407,7 @@ namespace ProjectAona.Engine.World
                 }
             }
             // The wall is surrounded by north/west/south walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_NWS"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_NWS"))
             {
                 wallName += "_";
 
@@ -426,7 +426,7 @@ namespace ProjectAona.Engine.World
                 }                
             }
             // The wall is surrounded by north/south/east walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_NSE"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_NSE"))
             {
                 wallName += "_";
 
@@ -445,7 +445,7 @@ namespace ProjectAona.Engine.World
                 }                
             }
             // The wall is surrounded by south/east walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_SE"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_SE"))
             {
                 // Get the tile SOUTHEAST from the wall
                 tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y + 32);
@@ -455,7 +455,7 @@ namespace ProjectAona.Engine.World
                 }
             }
             // The wall is surrounded by north/east walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_NE"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_NE"))
             {
                 // Get the tile NORTHEAST from the wall
                 tile = _chunkManager.TileAt((int)position.X - 32, (int)position.Y - 32);
@@ -465,7 +465,7 @@ namespace ProjectAona.Engine.World
                 }
             }
             // The wall is surrounded by north/west walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_NW"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_NW"))
             {
                 // Get the tile NORTHWEST from the wall
                 tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y - 32);
@@ -475,7 +475,7 @@ namespace ProjectAona.Engine.World
                 }
             }
             // The wall is surrounded by west/south walls, check the diagonally walls to get the corresponding wall sprite
-            else if (wallName == (wall.WallType.ToString() + "_WS"))
+            else if (wallName == (linkedSprite.Type.ToString() + "_WS"))
             {
                 // Get the tile SOUTHWEST from the wall
                 tile = _chunkManager.TileAt((int)position.X + 32, (int)position.Y + 32);
@@ -489,9 +489,9 @@ namespace ProjectAona.Engine.World
             // In the texture atlas is a sprite that corresponds to that name 
 
             // Check if wallName has changed and if neighbor is till set
-            if (wallName == (wall.WallType.ToString() + "_") && wall.HasNeighbor)
+            if (wallName == (linkedSprite.Type.ToString() + "_") && linkedSprite.HasNeighbor)
                     // Set to false since this wall doesn't have any neighbor's
-                    wall.HasNeighbor = false;
+                    linkedSprite.HasNeighbor = false;
 
             // Get the corresponding wall sprite from the texture atlas
             return _mineralTexture[wallName];

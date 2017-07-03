@@ -75,20 +75,20 @@ namespace ProjectAona.Engine.Assets
         SpriteFont DefaultFont { get; }
 
         /// <summary>
-        /// Gets the mineral texture atlas.
+        /// Gets the walls and selections texture atlas.
         /// </summary>
         /// <value>
-        /// The mineral texture atlas.
+        /// The walls and selections texture atlas.
         /// </value>
-        Texture2D MineralTextureAtlas { get; }
+        Texture2D WallsSelectionsTextureAtlas { get; }
 
         /// <summary>
-        /// Gets the mineral texture atlas XML.
+        /// Gets the walls and selection texture atlas XML.
         /// </summary>
         /// <value>
-        /// The mineral texture atlas XML.
+        /// The walls and selections texture atlas XML.
         /// </value>
-        Dictionary<string, Rectangle> MineralTextureAtlasXML{ get; }
+        Dictionary<string, Rectangle> WallsSelectionsTextureAtlasXML{ get; }
     }
 
     /// <summary>
@@ -163,20 +163,20 @@ namespace ProjectAona.Engine.Assets
         public SpriteFont DefaultFont { get; private set; }
 
         /// <summary>
-        /// Gets the mineral texture atlas.
+        /// Gets the walls and selections texture atlas.
         /// </summary>
         /// <value>
-        /// The mineral texture atlas.
+        /// The walls and selections texture atlas.
         /// </value>
-        public Texture2D MineralTextureAtlas { get; private set; }
+        public Texture2D WallsSelectionsTextureAtlas { get; private set; }
 
         /// <summary>
-        /// Gets the mineral texture atlas XML.
+        /// Gets the walls and selection texture atlas XML.
         /// </summary>
         /// <value>
-        /// The mineral texture atlas XML.
+        /// The walls and selections texture atlas XML.
         /// </value>
-        public Dictionary<string, Rectangle> MineralTextureAtlasXML { get; private set; }
+        public Dictionary<string, Rectangle> WallsSelectionsTextureAtlasXML { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AssetManager"/> class.
@@ -210,7 +210,7 @@ namespace ProjectAona.Engine.Assets
                 MapleTree = Game.Content.Load<Texture2D>("Textures\\Terrain\\mapleTree");
                 OakTree = Game.Content.Load<Texture2D>("Textures\\Terrain\\oakTree");
                 Bush = Game.Content.Load<Texture2D>("Textures\\Terrain\\bush");
-                MineralTextureAtlas = Game.Content.Load<Texture2D>("Textures\\Terrain\\mineralTextureAtlas");
+                WallsSelectionsTextureAtlas = Game.Content.Load<Texture2D>("Textures\\Terrain\\wallsSelections");
 
                 // Tiles
                 LightGrassTile = Game.Content.Load<Texture2D>("Textures\\Tiles\\grass1Tile");
@@ -222,7 +222,7 @@ namespace ProjectAona.Engine.Assets
                 DefaultFont = Game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
 
                 // Xml
-                MineralTextureAtlasXML = Game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\mineralTextureAtlas");
+                WallsSelectionsTextureAtlasXML = Game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\wallsSelections");
             }
             catch(Exception e)
             {

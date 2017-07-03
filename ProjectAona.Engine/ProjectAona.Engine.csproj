@@ -66,8 +66,10 @@
     <Compile Include="World\TerrainManager.cs" />
     <Compile Include="World\TerrainObjects\Flora.cs" />
     <Compile Include="World\TerrainObjects\FloraType.cs" />
+    <Compile Include="World\TerrainObjects\LinkedSprite.cs" />
+    <Compile Include="World\TerrainObjects\LinkedSpriteType.cs" />
     <Compile Include="World\TerrainObjects\Wall.cs" />
-    <Compile Include="World\TerrainObjects\WallType.cs" />
+    <Compile Include="World\TerrainSelection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Extended">

@@ -79,7 +79,7 @@ namespace ProjectAona.Engine.Core
         /// </summary>
         private void AddComponents()
         {
-            Game.Components.Add(new InputManager(Game));
+            //Game.Components.Add(new InputManager(Game));
             Game.Components.Add(new AssetManager(Game));
             Game.Components.Add(new ChunkManager(Game, _spriteBatch));
             Game.Components.Add(new SimpleTerrain(Game));

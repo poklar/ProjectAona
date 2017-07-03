@@ -105,12 +105,12 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Terrain/oakTree.png
 
-#begin Xml/TextureAtlas/mineralTextureAtlas.xml
+#begin Xml/TextureAtlas/wallsSelections.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
-/build:Xml/TextureAtlas/mineralTextureAtlas.xml
+/build:Xml/TextureAtlas/wallsSelections.xml
 
-#begin Textures/Terrain/mineralTextureAtlas.png
+#begin Textures/Terrain/wallsSelections.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -120,5 +120,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/Terrain/mineralTextureAtlas.png
+/build:Textures/Terrain/wallsSelections.png
 
