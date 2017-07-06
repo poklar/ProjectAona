@@ -91,6 +91,23 @@ namespace ProjectAona.Engine.Assets
         /// </value>
         public Dictionary<string, Rectangle> WallsSelectionsTextureAtlasXML { get; private set; }
 
+        /// <summary>
+        /// Gets the menu button.
+        /// </summary>
+        /// <value>
+        /// The menu button.
+        /// </value>
+        public Texture2D MenuButton { get; private set; }
+
+        public SpriteFont InGameFont { get; private set; }
+
+        public Texture2D Selection { get; private set; }
+
+        public Texture2D InvalidSelection { get; private set; }
+
+        /// <summary>
+        /// The game.
+        /// </summary>
         private Game _game;
 
         /// <summary>
@@ -107,13 +124,13 @@ namespace ProjectAona.Engine.Assets
         /// </summary>
         public void Initialize()
         {
-
+            LoadContent();
         }
 
         /// <summary>
         /// Loads the content.
         /// </summary>
-        public void LoadContent()
+        private void LoadContent()
         {
             // Set the content
             try
@@ -123,6 +140,8 @@ namespace ProjectAona.Engine.Assets
                 OakTree = _game.Content.Load<Texture2D>("Textures\\Terrain\\oakTree");
                 Bush = _game.Content.Load<Texture2D>("Textures\\Terrain\\bush");
                 WallsSelectionsTextureAtlas = _game.Content.Load<Texture2D>("Textures\\Terrain\\wallsSelections");
+                Selection = _game.Content.Load<Texture2D>("Textures\\Terrain\\selection");
+                InvalidSelection = _game.Content.Load<Texture2D>("Textures\\Terrain\\invalidSelection");
 
                 // Tiles
                 LightGrassTile = _game.Content.Load<Texture2D>("Textures\\Tiles\\grass1Tile");
@@ -132,9 +151,13 @@ namespace ProjectAona.Engine.Assets
 
                 // Font
                 DefaultFont = _game.Content.Load<SpriteFont>("Fonts\\DefaultFont");
+                InGameFont = _game.Content.Load<SpriteFont>("Fonts\\InGameFont");
 
                 // Xml
                 WallsSelectionsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\wallsSelections");
+
+                // User Interface
+                MenuButton = _game.Content.Load<Texture2D>("Textures\\UserInterface\\menuButton");
             }
             catch(Exception e)
             {

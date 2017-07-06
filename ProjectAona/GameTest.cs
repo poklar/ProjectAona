@@ -16,10 +16,11 @@ namespace ProjectAona.Test
 
         public GraphicsManager GraphicsManager { get; private set; }
 
+        private SpriteBatch _spriteBatch;
+
         private Engine.Core.Engine _engine;
 
         private Player _player;
-        private BuildScreen _buildScreen;
 
         public GameTest()
         {
@@ -40,12 +41,15 @@ namespace ProjectAona.Test
 
             // Set the window title
             Window.Title = "Project Aona Test";
-           
+
+            // Spritebatch
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+
             // Initialize the configurations
             EngineConfig config = new EngineConfig();
 
             // Create the engine
-            _engine = new Engine.Core.Engine(this, config);
+            _engine = new Engine.Core.Engine(this, config, _spriteBatch);
 
             // Start the screen manager
             GraphicsManager = new GraphicsManager(_graphicsDeviceManager, this);
@@ -63,7 +67,6 @@ namespace ProjectAona.Test
         {
             // TODO: What to do here?
             _player = new Player(this, _engine.Camera);
-            _buildScreen = new BuildScreen(this, _engine.AssetManager);
         }
 
         /// <summary>

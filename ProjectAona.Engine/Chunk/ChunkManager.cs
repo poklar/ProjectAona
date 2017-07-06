@@ -43,11 +43,6 @@ namespace ProjectAona.Engine.Chunk
         private ChunkCache _chunkCache;
 
         /// <summary>
-        /// The chunk storage.
-        /// </summary>
-        private ChunkStorage _chunkStorage;
-
-        /// <summary>
         /// The asset manager.
         /// </summary>
         private AssetManager _assetManager;
@@ -101,11 +96,12 @@ namespace ProjectAona.Engine.Chunk
         /// <param name="gameTime">The game time.</param>
         public void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin(SpriteSortMode.Texture, null, null, null, null, null, _camera.View);
-
+            _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
             DrawAllPartiallyVisibleChunks();
-            DrawCurrentlyLoadedChunksInfo();
+            _spriteBatch.End();
 
+            _spriteBatch.Begin();
+            DrawCurrentlyLoadedChunksInfo();
             _spriteBatch.End();
         }
 
@@ -124,17 +120,13 @@ namespace ProjectAona.Engine.Chunk
                         // Get the tile
                         Tile tile = chunk.TileAt(x, y);
 
-                        // Get the texture from the tile textures dictionary
-                        //Texture2D texture = _tileTexture.TileTextures[tile.TileType];
-
-
-                        // TODO: why tile.Position - _camera.Position?
-                        _spriteBatch.Draw(TileTexture(tile.TileType), tile.Position - _camera.Position, Color.White);
+                        // Draw sprite
+                        _spriteBatch.Draw(TileTexture(tile.TileType), tile.Position, Color.White);
                     }
                 }
 
                 // Draw string
-                _spriteBatch.DrawString(_assetManager.DefaultFont, "WorldQuadrant " + chunk.WorldQuadrant, chunk.Position - _camera.Position, Color.White);
+                _spriteBatch.DrawString(_assetManager.DefaultFont, "WorldQuadrant " + chunk.WorldQuadrant, chunk.Position, Color.White);
             }
         }
 
@@ -217,10 +209,10 @@ namespace ProjectAona.Engine.Chunk
         }
 
         /// <summary>
-        /// Checks if it is in world bounds.
+        /// Checks if tile is in world bounds.
         /// </summary>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
+        /// <param name="x">The x-coordinate.</param>
+        /// <param name="y">The y-coordinate.</param>
         /// <returns></returns>
         public bool InWorldBounds(int x, int y)
         {

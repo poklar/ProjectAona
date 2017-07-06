@@ -4,6 +4,8 @@ using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Menu;
+using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World;
 using System;
 
@@ -32,12 +34,10 @@ namespace ProjectAona.Engine.Core
         /// </summary>
         private SpriteBatch _spriteBatch;
 
-        private GameLoop _gameLoop;
-
         public delegate void EngineStartHandler(object sender, EventArgs e);
         public event EngineStartHandler EngineStart;
 
-        public Engine(Game game, EngineConfig config)
+        public Engine(Game game, EngineConfig config, SpriteBatch spriteBatch)
         {
             // Check if instance isn't set already
             if (_instance != null)
@@ -48,9 +48,7 @@ namespace ProjectAona.Engine.Core
             
             Game = game;
             Configuration = config;
-            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
-            //_gameLoop.Game = game;
-            
+            _spriteBatch = spriteBatch;
 
             // Validate the config
             config.Validate();
@@ -80,8 +78,9 @@ namespace ProjectAona.Engine.Core
         private ChunkManager _chunkManager;
         private Camera _camera;
         private TerrainManager _terrainManager;
-
-        public AssetManager AssetManager { get { return _assetManager; } }
+        private PlayingStateInterface _playingStateInterface;
+        private BuildMenuManager _buildMenuManager;
+        
         public Camera Camera { get { return _camera; } }
 
         /// <summary>
@@ -90,32 +89,51 @@ namespace ProjectAona.Engine.Core
         public void Initialize()
         {
             _assetManager = new AssetManager(Game);
+            _assetManager.Initialize();
+
             _camera = new Camera(Game);
 
             _chunkManager = new ChunkManager(Game, _spriteBatch, _camera, _assetManager);
             _chunkManager.Initialize();
+            
+            _playingStateInterface = new PlayingStateInterface(Game, _assetManager, _spriteBatch);
+            _playingStateInterface.Initialize();
 
-            _terrainManager = new TerrainManager(Game, _spriteBatch, _camera, _assetManager, _chunkManager);
+            _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager, _chunkManager);
 
-            NotifyEngineStart(EventArgs.Empty);
+            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _chunkManager, _playingStateInterface, _assetManager, _terrainManager);
         }
 
+        /// <summary>
+        /// Loads the content.
+        /// </summary>
         public void LoadContent()
         {
-            _assetManager.LoadContent();
             _terrainManager.LoadContent();
             
         }
 
+        /// <summary>
+        /// Updates the specified game time.
+        /// </summary>
+        /// <param name="gameTime">The game time.</param>
         public void Update(GameTime gameTime)
         {
             _camera.Update(gameTime);
+            _buildMenuManager.Update(gameTime);
+            _playingStateInterface.Update(gameTime);
         }
 
+        /// <summary>
+        /// Draws the specified game time.
+        /// </summary>
+        /// <param name="gameTime">The game time.</param>
         public void Draw(GameTime gameTime)
         {
             _chunkManager.Draw(gameTime);
             _terrainManager.Draw(gameTime);
+            _buildMenuManager.Draw(gameTime);
+            _playingStateInterface.Draw(gameTime);
         }
 
 

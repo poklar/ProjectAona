@@ -50,26 +50,30 @@
     <Compile Include="Chunk\ChunkStorage.cs" />
     <Compile Include="Chunk\Generators\ITerrainGenerator.cs" />
     <Compile Include="Chunk\Generators\SimpleTerrain.cs" />
+    <Compile Include="Common\GameText.cs" />
     <Compile Include="Common\Noise\SimplexNoise.cs" />
     <Compile Include="Core\Config\ChunkConfig.cs" />
     <Compile Include="Core\Config\EngineConfig.cs" />
     <Compile Include="Core\Config\GraphicsConfig.cs" />
     <Compile Include="Core\Config\WorldConfig.cs" />
     <Compile Include="Core\Engine.cs" />
-    <Compile Include="Core\GameLoop.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\GraphicsManager.cs" />
+    <Compile Include="Menu\BuildMenuManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\WorldSettings.cs" />
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileType.cs" />
+    <Compile Include="UserInterface\GUIElements\MenuButton.cs" />
+    <Compile Include="UserInterface\PlayingStateInterface.cs" />
+    <Compile Include="World\Selection\SelectWallArea.cs" />
     <Compile Include="World\TerrainManager.cs" />
     <Compile Include="World\TerrainObjects\Flora.cs" />
     <Compile Include="World\TerrainObjects\FloraType.cs" />
     <Compile Include="World\TerrainObjects\LinkedSprite.cs" />
     <Compile Include="World\TerrainObjects\LinkedSpriteType.cs" />
     <Compile Include="World\TerrainObjects\Wall.cs" />
-    <Compile Include="World\TerrainSelection.cs" />
+    <Compile Include="World\Selection\SelectionArea.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Extended">

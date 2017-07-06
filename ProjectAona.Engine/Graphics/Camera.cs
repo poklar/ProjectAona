@@ -32,21 +32,16 @@ namespace ProjectAona.Engine.Graphics
         public Matrix View { get; private set; }
 
         /// <summary>
-        /// The view port.
+        /// The viewport.
         /// </summary>
-        private Rectangle viewPort;
+        private Rectangle _viewport;
         /// <summary>
         /// The zoom.
         /// </summary>
         private float _zoom;
 
         /// <summary>
-        /// The bounds.
-        /// </summary>
-        private Rectangle _bounds;
-
-        /// <summary>
-        /// The game
+        /// The game.
         /// </summary>
         private Game _game;
 
@@ -58,7 +53,10 @@ namespace ProjectAona.Engine.Graphics
         {
             _game = game;
             Zoom = 1.0f;
-            Position = Vector2.Zero;
+            Position = new Vector2(400f, 300);
+            _viewport = _game.GraphicsDevice.Viewport.Bounds;
+
+            CalculateView();
         }
 
         public float Zoom
@@ -73,18 +71,7 @@ namespace ProjectAona.Engine.Graphics
         /// <param name="gameTime">The game time.</param>
         public void Update(GameTime gameTime)
         {
-            // Get the viewport boundary
-            viewPort = _game.GraphicsDevice.Viewport.Bounds;
-            _bounds = new Rectangle((int)Position.X, (int)Position.Y, (int)(viewPort.Width / Zoom), (int)(viewPort.Height / Zoom));
 
-            // Change viewport's position
-            viewPort.Offset((int)Position.X, (int)Position.Y);
-            // Set viewport to screen rectangle
-            ScreenRectangle = _bounds;
-
-            View = //Matrix.CreateTranslation(-Position.X, -Position.Y, 0) *
-                   Matrix.CreateScale(Zoom, Zoom, 1.0f);
-                   Matrix.CreateTranslation(viewPort.Width / 2, viewPort.Height / 2, 0.0f);;
         }
 
         /// <summary>
@@ -95,6 +82,7 @@ namespace ProjectAona.Engine.Graphics
         {
             // Change position
             Position = position;
+            CalculateView();
         }
 
         /// <summary>
@@ -104,6 +92,21 @@ namespace ProjectAona.Engine.Graphics
         public void UpdateZoom(float zoom)
         {
             _zoom = zoom;
+            CalculateView();
+        }
+
+        private void CalculateView()
+        {
+            // Calculate view
+            View = Matrix.CreateTranslation(-Position.X, -Position.Y, 0) *
+                   Matrix.CreateScale(Zoom) *
+                   Matrix.CreateTranslation(new Vector3(_viewport.Width / 2.0f, _viewport.Height / 2.0f, 0));
+
+            // Get the top left world position of the screen
+            Vector2 viewportWorldPosition = Vector2.Transform(new Vector2(0, 0), Matrix.Invert(View));
+
+            //  Set the screen
+            ScreenRectangle = new Rectangle((int)viewportWorldPosition.X, (int)viewportWorldPosition.Y, (int)(_viewport.Width / Zoom), (int)(_viewport.Height / Zoom));
         }
     }
 }

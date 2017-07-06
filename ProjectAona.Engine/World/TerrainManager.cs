@@ -1,13 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.TextureAtlases;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Common;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World.TerrainObjects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ProjectAona.Engine.World
 {
@@ -51,19 +55,13 @@ namespace ProjectAona.Engine.World
         /// </summary>
         private Camera _camera;
 
-        /// <summary>
-        /// The game
-        /// </summary>
-        private Game _game;
-
-        public TerrainManager(Game game, SpriteBatch spriteBatch, Camera camera, AssetManager assetManager, ChunkManager chunkManager)
+        public TerrainManager(SpriteBatch spriteBatch, Camera camera, AssetManager assetManager, ChunkManager chunkManager)
         {
             // Setters
-            _game = game;
             _spriteBatch = spriteBatch;
             _camera = camera;
             _assetManager = assetManager;
-            _chunkManager = chunkManager;            
+            _chunkManager = chunkManager;
 
             _floraObjects = new Dictionary<Vector2, Flora>();
             _wallObjects = new Dictionary<Vector2, Wall>();
@@ -77,14 +75,12 @@ namespace ProjectAona.Engine.World
             _wallsSelections = new TextureAtlas("wallsSelectionsTextureAtlas", _assetManager.WallsSelectionsTextureAtlas, _assetManager.WallsSelectionsTextureAtlasXML);
         }
 
-
         /// <summary>
         /// Draws the specified game time.
         /// </summary>
         /// <param name="gameTime">The game time.</param>
         public void Draw(GameTime gameTime)
         {
-            // Start drawing
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
 
             DrawTerrainObjects();
@@ -118,7 +114,7 @@ namespace ProjectAona.Engine.World
                             Flora flora = _floraObjects[position];
 
                             // And draw it 
-                            _spriteBatch.Draw(FloraTexture(flora.FloraType), flora.Position - _camera.Position, Color.White);
+                            _spriteBatch.Draw(FloraTexture(flora.FloraType), flora.Position, Color.White);
                         }
 
                         // If a wall object is positioned on the same as the tile
@@ -131,7 +127,7 @@ namespace ProjectAona.Engine.World
                             TextureRegion2D wallTexture = SelectWallSprite(wall);
 
                             // And draw it
-                            _spriteBatch.Draw(wallTexture.Texture, wall.Position - _camera.Position, wallTexture.Bounds, Color.White);
+                            _spriteBatch.Draw(wallTexture.Texture, wall.Position, wallTexture.Bounds, Color.White);
                         }
                     }
                 }
@@ -206,6 +202,25 @@ namespace ProjectAona.Engine.World
             throw new NotImplementedException();
         }
 
+        // TODO: Might want to make it more general later on
+        public bool IsTileOccupiedByWall(int x, int y)
+        {
+            Tile tile = _chunkManager.TileAtWorldPosition(x, y);
+
+            Wall wall = null;
+
+            if (_wallObjects.ContainsKey(tile.Position))
+                wall = _wallObjects[tile.Position];
+
+            if (tile != null && wall != null)
+            {
+                if (tile.IsOccupied && tile.Wall != null && tile.Wall == wall)
+                    return true;
+            }
+
+            return false;
+        }
+        
         /// <summary>
         /// Select the wall sprite from the texture atlas.
         /// </summary>
@@ -223,6 +238,7 @@ namespace ProjectAona.Engine.World
             // If the wall has a certain name, the northwest, southwest, southeast and/or northeast corner needs to be checked
             // Each sprite has a unique name, for examle if the wall has a north/south/east wall then the added string will be "NSE"
 
+            bool visible = true;
 
             // Get the position from the wall
             Vector2 position = linkedSprite.Position;
@@ -299,6 +315,12 @@ namespace ProjectAona.Engine.World
                 {
                     // Add N(orth)E(ast) to the string name
                     wallName += "NE";
+                }
+
+                if (linkedSprite.Type == LinkedSpriteType.Cave || linkedSprite.Type == LinkedSpriteType.CoalOre || linkedSprite.Type == LinkedSpriteType.IronOre || linkedSprite.Type == LinkedSpriteType.StoneOre)
+                {
+                    Wall wall = _chunkManager.TileAtWorldPosition((int)position.X, (int)position.Y).Wall;
+                    wall.Visible = visible = false;
                 }
             }
             // The wall is surrounded by west/south/east walls, check the diagonally walls to get the corresponding wall sprite
@@ -427,8 +449,11 @@ namespace ProjectAona.Engine.World
                     // Set to false since this wall doesn't have any neighbor's
                     linkedSprite.HasNeighbor = false;
 
-            // Get the corresponding wall sprite from the texture atlas
-            return _wallsSelections[wallName];
+            if (visible)
+                // Get the corresponding wall sprite from the texture atlas
+                return _wallsSelections[wallName];
+            else
+                return _wallsSelections["Cave_Invisible"];
         }
 
         /// <summary>
