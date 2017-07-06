@@ -1,3 +1,14 @@
+06-07-2017
+version: 0.1.5
+
+I can now build walls and remove objects.
+
+ToDo:
+* Spawn a sprite that is able to build walls/remove objects
+  - That means I have to build in some sort of job system
+* That sprite should avoid obstacles
+
+----------------
 02-07-2017
 version: 0.1.3
 
