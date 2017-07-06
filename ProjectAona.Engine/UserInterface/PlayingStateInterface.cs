@@ -54,6 +54,7 @@ namespace ProjectAona.Engine.UserInterface
         /// Occurs when [on sub menu clicked].
         /// </summary>
         public event ElementClicked OnSubMenuClicked;
+        public event ElementClicked OnMenuClicked;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlayingStateInterface"/> class.
@@ -79,7 +80,7 @@ namespace ProjectAona.Engine.UserInterface
         {
             //--------------- Main menu buttons ---------------\\
             MenuButton buildButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.BUILDWALL, _spriteBatch);
-            MenuButton testButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, "Test", _spriteBatch);
+            MenuButton testButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.REMOVE, _spriteBatch);
 
             // Add the buttons
             _menuButtons.Add(buildButton);
@@ -149,13 +150,13 @@ namespace ProjectAona.Engine.UserInterface
             {
                 // If sub menu is shown
                 if (_showSubMenu)
-                    // Set to false
                     _showSubMenu = false;
-                // Else if it isn't shown
                 else
-                    // Set to true
                     _showSubMenu = true;
             }
+            else if (element == GameText.BuildMenu.REMOVE)
+                OnMenuClicked(element, mouseState);
+
         }
 
         /// <summary>
@@ -165,17 +166,11 @@ namespace ProjectAona.Engine.UserInterface
         /// <param name="mouseState">State of the mouse.</param>
         private void OnSubMenuClick(string element, MouseState mouseState)
         {
-            // If player clicked on wood wall
             if (element == GameText.BuildMenu.BUILDWOODWALL)
-                // Call event
                 OnSubMenuClicked(element, mouseState);
-            // If player clicked on brick wall
             else if (element == GameText.BuildMenu.BUILDBRICKWALL)
-                // Call event
                 OnSubMenuClicked(element, mouseState);
-            // If player clicked on stone wall
             else if (element == GameText.BuildMenu.BUILDSTONEWALL)
-                // Call event
                 OnSubMenuClicked(element, mouseState);
         }
 
@@ -246,13 +241,16 @@ namespace ProjectAona.Engine.UserInterface
                     return true;
             }
 
-            foreach (MenuButton button in _subMenuButtons)
+            if (_showSubMenu)
             {
-                Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
+                foreach (MenuButton button in _subMenuButtons)
+                {
+                    Vector2 mousePosition = new Vector2(currentMouseState.X, currentMouseState.Y);
 
-                // If mouse is intersecting with the button
-                if (button.Position.Contains(mousePosition))
-                    return true;
+                    // If mouse is intersecting with the button
+                    if (button.Position.Contains(mousePosition))
+                        return true;
+                }
             }
 
             return mouseOverMenu;

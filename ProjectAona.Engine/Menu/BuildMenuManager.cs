@@ -49,12 +49,14 @@ namespace ProjectAona.Engine.Menu
         /// <summary>
         /// The selection area.
         /// </summary>
-        private SelectWallArea _selectionArea;
+        private SelectWallArea _selectWallArea;
+
+        private SelectedAreaRemoval _selectAreaRemoval;
 
         /// <summary>
         /// The selecting area.
         /// </summary>
-        private bool _selectingArea;
+        private SelectingAreaType _selectingType;
 
         /// <summary>
         /// The selected build name.
@@ -77,14 +79,21 @@ namespace ProjectAona.Engine.Menu
             _camera = camera;
             _chunkManager = chunkManager;
             _playingStateInterface = playingStateInterface;
-            // Subcribe to the event
+            _playingStateInterface.OnMenuClicked += OnRemoval;
             _playingStateInterface.OnSubMenuClicked += OnBuildWall;
             _assetManager = assetManager;
             _terrainManager = terrainManager;
-            _selectionArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager, this);
-            // Subsscribe to the events
-            _selectionArea.OnSelectionSelected += OnSelectionSelected;
-            _selectionArea.OnSelectionCancelled += OnSelectionCancelled;
+
+            _selectWallArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager, this);
+            _selectWallArea.OnSelectionSelected += OnSelectionSelected;
+            _selectWallArea.OnSelectionCancelled += OnSelectionCancelled;
+
+            _selectAreaRemoval = new SelectedAreaRemoval(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager, this);
+            _selectAreaRemoval.OnSelectionRemovalSelected += OnRemovalSelected;
+            _selectAreaRemoval.OnSelectionCancelled += OnSelectionCancelled;
+
+            _selectingType = SelectingAreaType.None;
+
             _buildSelectionName = "";
         }
 
@@ -94,10 +103,11 @@ namespace ProjectAona.Engine.Menu
         /// <param name="gameTime">The game time.</param>
         public void Update(GameTime gameTime)
         {
-            // If player is selecting an area
-            if (_selectingArea)
-                // Update the class
-                _selectionArea.Update();
+            switch (_selectingType)
+            {
+                case SelectingAreaType.Wall: _selectWallArea.Update(); break;
+                case SelectingAreaType.Removal: _selectAreaRemoval.Update(); break;
+            }
         }
 
         /// <summary>
@@ -108,10 +118,11 @@ namespace ProjectAona.Engine.Menu
         {
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
 
-            // If the player is selecting an area
-            if (_selectingArea)
-                // Draw the components
-                _selectionArea.Draw();
+            switch (_selectingType)
+            {
+                case SelectingAreaType.Wall: _selectWallArea.Draw(); break;
+                case SelectingAreaType.Removal: _selectAreaRemoval.Draw(); break;
+            }
 
             _spriteBatch.End();
         }
@@ -124,19 +135,32 @@ namespace ProjectAona.Engine.Menu
         private void OnBuildWall(string element, MouseState mouseState)
         {
             // If the player isn't selecting something already and wants to build a wood/brick/stone wall 
-            if (!_selectingArea && element == GameText.BuildMenu.BUILDWOODWALL || element == GameText.BuildMenu.BUILDBRICKWALL || element == GameText.BuildMenu.BUILDSTONEWALL)
+            if (_selectingType != SelectingAreaType.Wall && element == GameText.BuildMenu.BUILDWOODWALL || element == GameText.BuildMenu.BUILDBRICKWALL || element == GameText.BuildMenu.BUILDSTONEWALL)
             {
                 // Save the element name the player wants to build (ie stone wall)
                 _buildSelectionName = element;
-                // Select the area
-                _selectionArea.SelectArea(mouseState);
+                _selectWallArea.SelectArea(mouseState);
                 // Player is now selecting an area, set bool to true
-                _selectingArea = true;
+                _selectingType = SelectingAreaType.Wall;
             }
-            // If anything else happens 
             else
-                // Cancel the selection
-                _selectionArea.CancelSelection();
+                _selectWallArea.CancelSelection();
+        }
+
+        /// <summary>
+        /// Called when player clicks [remove].
+        /// </summary>
+        /// <param name="element">The element.</param>
+        /// <param name="mouseState">State of the mouse.</param>
+        private void OnRemoval(string element, MouseState mouseState)
+        {
+            if (_selectingType != SelectingAreaType.Removal)
+            {
+                _selectAreaRemoval.SelectArea(mouseState);
+                _selectingType = SelectingAreaType.Removal;
+            }
+            else
+                _selectAreaRemoval.CancelSelection();
         }
 
         /// <summary>
@@ -153,28 +177,40 @@ namespace ProjectAona.Engine.Menu
                 {
                     // Get the tile by selecting the start position of the rectangle
                     Tile tile = _chunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
-
-                    // If tile isn't null
+                    
                     if (tile != null)
                     {
-                        // Name was wood wall
                         if (_buildSelectionName == GameText.BuildMenu.BUILDWOODWALL)
-                            // Build a wood wall
                             TerrainManager.AddWall(LinkedSpriteType.WoodWall, tile);
-                        // If name was brick wall
                         else if (_buildSelectionName == GameText.BuildMenu.BUILDBRICKWALL)
-                            // Build a brick wall
                             TerrainManager.AddWall(LinkedSpriteType.BrickWall, tile);
-                        // Else if the name was stone wall
                         else if (_buildSelectionName == GameText.BuildMenu.BUILDSTONEWALL)
-                            // Build a stone wall
                             TerrainManager.AddWall(LinkedSpriteType.StoneWall, tile);
                     }
                 }
             }
+            
+            _selectingType = SelectingAreaType.None;
+        }
 
-            // Player is done selecting an area to build now, set bool to false
-            _selectingArea = false;
+        private void OnRemovalSelected(Dictionary<Rectangle, Texture2D> selectedTiles)
+        {
+            // For each rectangle in selected tiles rectangle
+            foreach (var rectangle in selectedTiles.Keys)
+            {
+                // Get the tile by selecting the start position of the rectangle
+                Tile tile = _chunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
+
+                if (tile != null && tile.IsOccupied)
+                {
+                    if (tile.Flora != null)
+                        _terrainManager.RemoveFlora(tile);
+                    else if (tile.Wall != null)
+                        _terrainManager.RemoveWall(tile);
+                }
+            }
+
+            _selectingType = SelectingAreaType.None;
         }
 
         /// <summary>
@@ -182,8 +218,7 @@ namespace ProjectAona.Engine.Menu
         /// </summary>
         private void OnSelectionCancelled()
         {
-            //Player is done selecting an area to build now, set bool to false
-            _selectingArea = false;
+            _selectingType = SelectingAreaType.None;
         }
 
         /// <summary>
@@ -197,5 +232,12 @@ namespace ProjectAona.Engine.Menu
             // Return if true or not
             return _playingStateInterface.IsMouseOverMenu();
         }
+    }
+
+    public enum SelectingAreaType
+    {
+        Wall,
+        Removal,
+        None
     }
 }

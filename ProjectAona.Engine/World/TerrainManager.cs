@@ -186,9 +186,14 @@ namespace ProjectAona.Engine.World
         /// <param name="flora">The flora.</param>
         /// <param name="tile">The tile.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void RemoveFlora(Flora flora, Tile tile)
+        public void RemoveFlora(Tile tile)
         {
-            throw new NotImplementedException();
+            if (tile.IsOccupied && _floraObjects.ContainsKey(tile.Position))
+            {
+                tile.Flora = null;
+                tile.IsOccupied = false;
+                _floraObjects.Remove(tile.Position);
+            }
         }
 
         /// <summary>
@@ -197,12 +202,25 @@ namespace ProjectAona.Engine.World
         /// <param name="wall">The wall.</param>
         /// <param name="tile">The tile.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void RemoveWall(Wall wall, Tile tile)
+        public void RemoveWall(Tile tile)
         {
-            throw new NotImplementedException();
+            if (tile.IsOccupied && _wallObjects.ContainsKey(tile.Position))
+            {
+                tile.Wall = null;
+                tile.IsOccupied = false;
+                _wallObjects.Remove(tile.Position);
+            }
         }
 
         // TODO: Might want to make it more general later on
+        /// <summary>
+        /// Determines whether the tile is occupied by a wall].
+        /// </summary>
+        /// <param name="x">The x.</param>
+        /// <param name="y">The y.</param>
+        /// <returns>
+        ///   <c>true</c> if [is tile occupied by wall]; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsTileOccupiedByWall(int x, int y)
         {
             Tile tile = _chunkManager.TileAtWorldPosition(x, y);
@@ -216,6 +234,28 @@ namespace ProjectAona.Engine.World
             {
                 if (tile.IsOccupied && tile.Wall != null && tile.Wall == wall)
                     return true;
+            }
+
+            return false;
+        }
+
+        public bool IsTileOccupiedByOre(int x, int y)
+        {
+            Tile tile = _chunkManager.TileAtWorldPosition(x, y);
+
+            Wall wall = null;
+
+            if (_wallObjects.ContainsKey(tile.Position))
+                wall = _wallObjects[tile.Position];
+
+            if (tile != null &&  wall != null)
+            {
+                if (tile.IsOccupied && tile.Wall != null && tile.Wall == wall)
+                {
+                    if (wall.Type == LinkedSpriteType.Cave || wall.Type == LinkedSpriteType.CoalOre ||
+                        wall.Type == LinkedSpriteType.StoneOre || wall.Type == LinkedSpriteType.IronOre)
+                        return true;
+                }
             }
 
             return false;

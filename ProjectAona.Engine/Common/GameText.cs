@@ -9,6 +9,8 @@
             public const string BUILDWOODWALL = "Wood";
             public const string BUILDBRICKWALL = "Brick";
             public const string BUILDSTONEWALL = "Stone";
+
+            public const string REMOVE = "Remove";
         }
     }
 }

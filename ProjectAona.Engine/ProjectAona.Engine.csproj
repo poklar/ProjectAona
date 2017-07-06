@@ -66,6 +66,7 @@
     <Compile Include="Tiles\TileType.cs" />
     <Compile Include="UserInterface\GUIElements\MenuButton.cs" />
     <Compile Include="UserInterface\PlayingStateInterface.cs" />
+    <Compile Include="World\Selection\SelectedAreaRemoval.cs" />
     <Compile Include="World\Selection\SelectWallArea.cs" />
     <Compile Include="World\TerrainManager.cs" />
     <Compile Include="World\TerrainObjects\Flora.cs" />

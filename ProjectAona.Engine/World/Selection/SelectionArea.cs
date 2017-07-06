@@ -12,11 +12,11 @@ namespace ProjectAona.Engine.World
 {
     public class SelectionArea
     {
-        private ChunkManager _chunkManager;
+        protected ChunkManager _chunkManager;
 
-        private TerrainManager _terrainManager;
+        protected TerrainManager _terrainManager;
 
-        private BuildMenuManager _buildMenuManager;
+        protected BuildMenuManager _buildMenuManager;
 
         protected Camera _camera;
 
@@ -24,22 +24,22 @@ namespace ProjectAona.Engine.World
 
         protected Dictionary<Rectangle, Texture2D> _selectedTiles;
 
-        private bool _tileSelected;
+        protected bool _tileSelected;
 
-        private bool _validSelection;
+        protected bool _validSelection;
 
-        private MouseState _previousMouseState;
+        protected MouseState _previousMouseState;
 
         protected Rectangle _startTilePosition;
 
-        private Texture2D _validSelectionTexture;
-        private Texture2D _invalidSelectionTexture;
+        protected Texture2D _validSelectionTexture;
+        protected Texture2D _invalidSelectionTexture;
 
         public delegate void SelectionClicked(Dictionary<Rectangle, Texture2D> selectedTiles);
         public event SelectionClicked OnSelectionSelected;
 
         public delegate void SelectionCancelled();
-        public event SelectionCancelled OnSelectionCancelled;
+        public virtual event SelectionCancelled OnSelectionCancelled;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectionArea"/> class.
@@ -69,7 +69,7 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Updates this instance.
         /// </summary>
-        public void Update()
+        public virtual void Update()
         {
             MouseState currentMouseState = Mouse.GetState();
  
@@ -128,7 +128,7 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Cancels the selection.
         /// </summary>
-        public void CancelSelection()
+        public virtual void CancelSelection()
         {
             _tileSelected = false;
             OnSelectionCancelled();
@@ -188,7 +188,7 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="x">The x.</param>
         /// <param name="y">The y.</param>
-        protected void AddSelectedTile(int x, int y)
+        protected virtual void AddSelectedTile(int x, int y)
         {
             // Check if tile is in world bounds
             if (_chunkManager.InWorldBounds(x, y))
@@ -196,6 +196,7 @@ namespace ProjectAona.Engine.World
                 bool isOccupied = _terrainManager.IsTileOccupiedByWall(x, y);
 
                 bool isSelectionValid = true;
+                _validSelection = true;
 
                 if (isOccupied)
                 {
