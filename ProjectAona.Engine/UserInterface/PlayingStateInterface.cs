@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Test.UserInterface.GUIElements;
 using System.Collections.Generic;
-using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Common;
+using ProjectAona.Engine.Input;
+using System.Diagnostics;
+using ProjectAona.Engine.World.Selection;
 
 namespace ProjectAona.Engine.UserInterface
 {
@@ -15,44 +16,19 @@ namespace ProjectAona.Engine.UserInterface
     /// </summary>
     public class PlayingStateInterface
     {
-        /// <summary>
-        /// The menu buttons.
-        /// </summary>
-        private List<MenuButton> _menuButtons;
-        /// <summary>
-        /// The sub menu buttons.
-        /// </summary>
-        private List<MenuButton> _subMenuButtons;
+        static private List<MenuButton> _menuButtons;
 
-        /// <summary>
-        /// The game.
-        /// </summary>
+        static private List<MenuButton> _subMenuButtons;
+
         private Game _game;
 
-        /// <summary>
-        /// The asset manager.
-        /// </summary>
         private AssetManager _assetManager;
 
-        /// <summary>
-        /// The sprite batch.
-        /// </summary>
         private SpriteBatch _spriteBatch;
 
-        /// <summary>
-        /// The show sub menu.
-        /// </summary>
-        private bool _showSubMenu;
+        static private bool _showSubMenu;
 
-        /// <summary>
-        /// Delegater.
-        /// </summary>
-        /// <param name="element">The element.</param>
-        /// <param name="mouseState">State of the mouse.</param>
         public delegate void ElementClicked(string element, MouseState mouseState);
-        /// <summary>
-        /// Occurs when [on sub menu clicked].
-        /// </summary>
         public event ElementClicked OnSubMenuClicked;
         public event ElementClicked OnMenuClicked;
 
@@ -226,7 +202,7 @@ namespace ProjectAona.Engine.UserInterface
         /// <returns>
         ///   <c>true</c> if [is mouse over menu]; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsMouseOverMenu()
+        public static bool IsMouseOverMenu()
         {
             MouseState currentMouseState = Mouse.GetState();
 
@@ -255,5 +231,13 @@ namespace ProjectAona.Engine.UserInterface
 
             return mouseOverMenu;
         }
+
+        public static void SelectedTileInfo(SelectionInfo selection)
+        {
+            Debug.WriteLine(selection.Tile.Position);
+            if (selection.Entities.Count != 0)
+                foreach (ISelectableInterface entity in selection.Entities)
+                    Debug.WriteLine(entity.GetName());
+        } 
     }
 }

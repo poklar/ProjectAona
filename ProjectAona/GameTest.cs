@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
-using ProjectAona.Test.UserInterface;
 using System;
 
 namespace ProjectAona.Test

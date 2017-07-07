@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.World.Selection;
 using System;
 namespace ProjectAona.Engine.World.TerrainObjects
 {
-    public class Flora
+    public class Flora : ISelectableInterface
     {
         public Vector2 Position { get; set; }
 
@@ -17,6 +18,15 @@ namespace ProjectAona.Engine.World.TerrainObjects
             Position = position;
             FloraType = type;
             IsCut = false;
+        }
+
+        /// <summary>
+        /// Gets the name of the object.
+        /// </summary>
+        /// <returns></returns>
+        public string GetName()
+        {
+            return FloraType.ToString();
         }
     }
 }

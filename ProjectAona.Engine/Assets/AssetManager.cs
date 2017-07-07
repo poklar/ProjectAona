@@ -11,92 +11,26 @@ namespace ProjectAona.Engine.Assets
     /// </summary>
     public class AssetManager
     {
-        /// <summary>
-        /// Gets the bush texture.
-        /// </summary>
-        /// <value>
-        /// The bush.
-        /// </value>
         public Texture2D Bush { get; private set; }
 
-        /// <summary>
-        /// Gets the maple tree texture.
-        /// </summary>
-        /// <value>
-        /// The maple tree.
-        /// </value>
         public Texture2D MapleTree { get; private set; }
 
-        /// <summary>
-        /// Gets the oak tree texture.
-        /// </summary>
-        /// <value>
-        /// The oak tree.
-        /// </value>
         public Texture2D OakTree { get; private set; }
 
-        /// <summary>
-        /// Gets the light grass tile texture.
-        /// </summary>
-        /// <value>
-        /// The light grass tile.
-        /// </value>
         public Texture2D LightGrassTile { get; private set; }
 
-        /// <summary>
-        /// Gets the dark grass tile texture.
-        /// </summary>
-        /// <value>
-        /// The dark grass tile.
-        /// </value>
         public Texture2D DarkGrassTile { get; private set; }
 
-        /// <summary>
-        /// Gets the stone tile texture.
-        /// </summary>
-        /// <value>
-        /// The stone tile.
-        /// </value>
         public Texture2D StoneTile { get; private set; }
 
-        /// <summary>
-        /// Gets the water tile texture.
-        /// </summary>
-        /// <value>
-        /// The water tile.
-        /// </value>
         public Texture2D WaterTile { get; private set; }
         
-        /// <summary>
-        /// Gets the default font.
-        /// </summary>
-        /// <value>
-        /// The default font.
-        /// </value>
         public SpriteFont DefaultFont { get; private set; }
 
-        /// <summary>
-        /// Gets the walls and selections texture atlas.
-        /// </summary>
-        /// <value>
-        /// The walls and selections texture atlas.
-        /// </value>
         public Texture2D WallsSelectionsTextureAtlas { get; private set; }
 
-        /// <summary>
-        /// Gets the walls and selection texture atlas XML.
-        /// </summary>
-        /// <value>
-        /// The walls and selections texture atlas XML.
-        /// </value>
         public Dictionary<string, Rectangle> WallsSelectionsTextureAtlasXML { get; private set; }
 
-        /// <summary>
-        /// Gets the menu button.
-        /// </summary>
-        /// <value>
-        /// The menu button.
-        /// </value>
         public Texture2D MenuButton { get; private set; }
 
         public SpriteFont InGameFont { get; private set; }
@@ -104,10 +38,11 @@ namespace ProjectAona.Engine.Assets
         public Texture2D Selection { get; private set; }
 
         public Texture2D InvalidSelection { get; private set; }
+        
+        public Texture2D NPCNormal { get; private set; }
 
-        /// <summary>
-        /// The game.
-        /// </summary>
+        public Texture2D NPCBusy { get; private set; }
+
         private Game _game;
 
         /// <summary>
@@ -158,6 +93,10 @@ namespace ProjectAona.Engine.Assets
 
                 // User Interface
                 MenuButton = _game.Content.Load<Texture2D>("Textures\\UserInterface\\menuButton");
+
+                // NPC
+                NPCNormal = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_normal");
+                NPCBusy = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_busy");
             }
             catch(Exception e)
             {

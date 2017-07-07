@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Menu;
 using ProjectAona.Engine.Tiles;
 using System.Collections.Generic;
@@ -15,8 +16,6 @@ namespace ProjectAona.Engine.World
         protected ChunkManager _chunkManager;
 
         protected TerrainManager _terrainManager;
-
-        protected BuildMenuManager _buildMenuManager;
 
         protected Camera _camera;
 
@@ -50,13 +49,12 @@ namespace ProjectAona.Engine.World
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="terrainManager">The terrain manager.</param>
         /// <param name="buildMenuManager">The build menu manager.</param>
-        public SelectionArea(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager, BuildMenuManager buildMenuManager)
+        public SelectionArea(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager)
         {
             // Setters
             _selectedTiles = new Dictionary<Rectangle, Texture2D>();
             _chunkManager = chunkManager;
             _terrainManager = terrainManager;
-            _buildMenuManager = buildMenuManager;
             _tileSelected = false;
             _previousMouseState = Mouse.GetState();
             _validSelectionTexture = assetManager.Selection;
@@ -82,12 +80,12 @@ namespace ProjectAona.Engine.World
 
             // As long as the player holds the left mouse button
             if (_tileSelected && currentMouseState.LeftButton == ButtonState.Pressed)
-                CalculateSelectedArea(currentMouseState);
+                CalculateSelectedArea();
 
             // If the player releases the previous pressed mouse button
             if (_tileSelected && currentMouseState.LeftButton == ButtonState.Released && _previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                if (_validSelection && !_buildMenuManager.IsMouseOverMenu())
+                if (_validSelection && !MouseManager.IsMouseOverMenu())
                     OnSelectionSelected(_selectedTiles);
 
                 // Player is done selecting tiles
@@ -137,12 +135,11 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Calculates the selected area.
         /// </summary>
-        /// <param name="mouseState">State of the mouse.</param>
-        protected virtual void CalculateSelectedArea(MouseState mouseState)
+        protected virtual void CalculateSelectedArea()
         {
             _selectedTiles.Clear();
 
-            Vector2 worldMousePosition = Vector2.Transform(new Vector2(mouseState.X, mouseState.Y), Matrix.Invert(_camera.View));
+            Vector2 worldMousePosition = MouseManager.GetWorldMousePosition();
 
             Rectangle currentTilePosition = TilePosition(worldMousePosition);
             

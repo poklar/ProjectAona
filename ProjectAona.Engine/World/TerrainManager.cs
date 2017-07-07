@@ -20,39 +20,18 @@ namespace ProjectAona.Engine.World
     /// </summary>
     public class TerrainManager
     {
-        /// <summary>
-        /// The flora objects. The key will be the position.
-        /// </summary>
         private static Dictionary<Vector2, Flora> _floraObjects;
 
-        /// <summary>
-        /// The wall objects. The key will be the position.
-        /// </summary>
         private static Dictionary<Vector2, Wall> _wallObjects;
 
-        /// <summary>
-        /// The wall texture.
-        /// </summary>
         private TextureAtlas _wallsSelections;
 
-        /// <summary>
-        /// The sprite batch.
-        /// </summary>
         private SpriteBatch _spriteBatch;
 
-        /// <summary>
-        /// The asset manager.
-        /// </summary>
         private AssetManager _assetManager;
 
-        /// <summary>
-        /// The chunk manager.
-        /// </summary>
         private ChunkManager _chunkManager;
 
-        /// <summary>
-        /// The camera.
-        /// </summary>
         private Camera _camera;
 
         public TerrainManager(SpriteBatch spriteBatch, Camera camera, AssetManager assetManager, ChunkManager chunkManager)
@@ -81,7 +60,7 @@ namespace ProjectAona.Engine.World
         /// <param name="gameTime">The game time.</param>
         public void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
+            _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, _camera.View);
 
             DrawTerrainObjects();
 

@@ -4,6 +4,7 @@ using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Core.Config;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Menu;
 using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World;
@@ -80,6 +81,8 @@ namespace ProjectAona.Engine.Core
         private TerrainManager _terrainManager;
         private PlayingStateInterface _playingStateInterface;
         private BuildMenuManager _buildMenuManager;
+        private NPCManager _npcManager;
+        private MouseManager _mouseManager;
         
         public Camera Camera { get { return _camera; } }
 
@@ -95,13 +98,18 @@ namespace ProjectAona.Engine.Core
 
             _chunkManager = new ChunkManager(Game, _spriteBatch, _camera, _assetManager);
             _chunkManager.Initialize();
-            
+
+            _mouseManager = new MouseManager(_camera, _chunkManager);
+
             _playingStateInterface = new PlayingStateInterface(Game, _assetManager, _spriteBatch);
             _playingStateInterface.Initialize();
 
             _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager, _chunkManager);
 
             _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _chunkManager, _playingStateInterface, _assetManager, _terrainManager);
+
+            _npcManager = new NPCManager(_camera, _assetManager, _chunkManager, _spriteBatch);
+            _npcManager.Initialize();
         }
 
         /// <summary>
@@ -121,7 +129,9 @@ namespace ProjectAona.Engine.Core
         {
             _camera.Update(gameTime);
             _buildMenuManager.Update(gameTime);
+            _npcManager.Update(gameTime);
             _playingStateInterface.Update(gameTime);
+            _mouseManager.Update(gameTime);
         }
 
         /// <summary>
@@ -133,6 +143,7 @@ namespace ProjectAona.Engine.Core
             _chunkManager.Draw(gameTime);
             _terrainManager.Draw(gameTime);
             _buildMenuManager.Draw(gameTime);
+            _npcManager.Draw(gameTime);
             _playingStateInterface.Draw(gameTime);
         }
 

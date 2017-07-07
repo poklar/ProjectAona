@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Common;
+using ProjectAona.Engine.Core;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.UserInterface;
@@ -16,51 +17,24 @@ namespace ProjectAona.Engine.Menu
 {
     public class BuildMenuManager
     {
-        /// <summary>
-        /// The sprite batch.
-        /// </summary>
         private SpriteBatch _spriteBatch;
 
-        /// <summary>
-        /// The camera.
-        /// </summary>
         private Camera _camera;
 
-        /// <summary>
-        /// The chunk manager.
-        /// </summary>
         private ChunkManager _chunkManager;
 
-        /// <summary>
-        /// The playing state interface.
-        /// </summary>
         private PlayingStateInterface _playingStateInterface;
 
-        /// <summary>
-        /// The asset manager.
-        /// </summary>
         private AssetManager _assetManager;
 
-        /// <summary>
-        /// The terrain manager.
-        /// </summary>
         private TerrainManager _terrainManager;
 
-        /// <summary>
-        /// The selection area.
-        /// </summary>
         private SelectWallArea _selectWallArea;
 
         private SelectedAreaRemoval _selectAreaRemoval;
 
-        /// <summary>
-        /// The selecting area.
-        /// </summary>
         private SelectingAreaType _selectingType;
 
-        /// <summary>
-        /// The selected build name.
-        /// </summary>
         private string _buildSelectionName;
 
         /// <summary>
@@ -84,12 +58,12 @@ namespace ProjectAona.Engine.Menu
             _assetManager = assetManager;
             _terrainManager = terrainManager;
 
-            _selectWallArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager, this);
+            _selectWallArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager);
             _selectWallArea.OnSelectionSelected += OnSelectionSelected;
             _selectWallArea.OnSelectionCancelled += OnSelectionCancelled;
 
-            _selectAreaRemoval = new SelectedAreaRemoval(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager, this);
-            _selectAreaRemoval.OnSelectionRemovalSelected += OnRemovalSelected;
+            _selectAreaRemoval = new SelectedAreaRemoval(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager);
+            _selectAreaRemoval.OnSelectionRemovalSelected += OnRemoveSelected;
             _selectAreaRemoval.OnSelectionCancelled += OnSelectionCancelled;
 
             _selectingType = SelectingAreaType.None;
@@ -134,6 +108,8 @@ namespace ProjectAona.Engine.Menu
         /// <param name="mouseState">State of the mouse.</param>
         private void OnBuildWall(string element, MouseState mouseState)
         {
+            GameState.State = GameStateType.SELECTING;
+
             // If the player isn't selecting something already and wants to build a wood/brick/stone wall 
             if (_selectingType != SelectingAreaType.Wall && element == GameText.BuildMenu.BUILDWOODWALL || element == GameText.BuildMenu.BUILDBRICKWALL || element == GameText.BuildMenu.BUILDSTONEWALL)
             {
@@ -154,6 +130,8 @@ namespace ProjectAona.Engine.Menu
         /// <param name="mouseState">State of the mouse.</param>
         private void OnRemoval(string element, MouseState mouseState)
         {
+            GameState.State = GameStateType.SELECTING;
+
             if (_selectingType != SelectingAreaType.Removal)
             {
                 _selectAreaRemoval.SelectArea(mouseState);
@@ -191,9 +169,10 @@ namespace ProjectAona.Engine.Menu
             }
             
             _selectingType = SelectingAreaType.None;
+            GameState.State = GameStateType.PLAYING;
         }
 
-        private void OnRemovalSelected(Dictionary<Rectangle, Texture2D> selectedTiles)
+        private void OnRemoveSelected(Dictionary<Rectangle, Texture2D> selectedTiles)
         {
             // For each rectangle in selected tiles rectangle
             foreach (var rectangle in selectedTiles.Keys)
@@ -211,6 +190,7 @@ namespace ProjectAona.Engine.Menu
             }
 
             _selectingType = SelectingAreaType.None;
+            GameState.State = GameStateType.PLAYING;
         }
 
         /// <summary>
@@ -219,18 +199,7 @@ namespace ProjectAona.Engine.Menu
         private void OnSelectionCancelled()
         {
             _selectingType = SelectingAreaType.None;
-        }
-
-        /// <summary>
-        /// Determines whether [is mouse over menu].
-        /// </summary>
-        /// <returns>
-        ///   <c>true</c> if [is mouse over menu]; otherwise, <c>false</c>.
-        /// </returns>
-        public bool IsMouseOverMenu()
-        {
-            // Return if true or not
-            return _playingStateInterface.IsMouseOverMenu();
+            GameState.State = GameStateType.PLAYING;
         }
     }
 

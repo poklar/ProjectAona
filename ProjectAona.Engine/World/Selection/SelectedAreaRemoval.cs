@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunk;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Menu;
 
 namespace ProjectAona.Engine.World.Selection
@@ -22,8 +23,8 @@ namespace ProjectAona.Engine.World.Selection
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="terrainManager">The terrain manager.</param>
         /// <param name="buildMenuManager">The build menu manager.</param>
-        public SelectedAreaRemoval(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager, BuildMenuManager buildMenuManager)
-            : base (assetManager, camera, chunkManager, spriteBatch, terrainManager, buildMenuManager)
+        public SelectedAreaRemoval(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager)
+            : base (assetManager, camera, chunkManager, spriteBatch, terrainManager)
         {
 
         }
@@ -44,12 +45,12 @@ namespace ProjectAona.Engine.World.Selection
 
             // As long as the player holds the left mouse button
             if (_tileSelected && currentMouseState.LeftButton == ButtonState.Pressed)
-                CalculateSelectedArea(currentMouseState);
+                CalculateSelectedArea();
 
             // If the player releases the previous pressed mouse button
             if (_tileSelected && currentMouseState.LeftButton == ButtonState.Released && _previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                if (_validSelection && !_buildMenuManager.IsMouseOverMenu())
+                if (_validSelection && !MouseManager.IsMouseOverMenu())
                     OnSelectionRemovalSelected(_selectedTiles);
 
                 // Player is done selecting tiles

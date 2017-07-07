@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.World.Selection;
 
 namespace ProjectAona.Engine.World.TerrainObjects
 {
-    public class Wall : LinkedSprite
+    public class Wall : LinkedSprite, ISelectableInterface
     {
         public override Vector2 Position { get; set; }
 
@@ -21,6 +22,15 @@ namespace ProjectAona.Engine.World.TerrainObjects
             IsDestructed = false;
             HasNeighbor = false;
             Visible = false;
+        }
+
+        /// <summary>
+        /// Gets the name of the object.
+        /// </summary>
+        /// <returns></returns>
+        public string GetName()
+        {
+            return Type.ToString();
         }
     }
 }
