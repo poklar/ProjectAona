@@ -35,12 +35,12 @@ namespace ProjectAona.Engine.Chunks
         /// <summary>
         /// The camera.
         /// </summary>
-        private Camera _camera;
+        private static Camera _camera;
 
         /// <summary>
         /// The chunk cache.
         /// </summary>
-        private ChunkCache _chunkCache;
+        private static ChunkCache _chunkCache;
 
         /// <summary>
         /// The asset manager.
@@ -165,7 +165,7 @@ namespace ProjectAona.Engine.Chunks
         /// <param name="x">The x-coordinate.</param>
         /// <param name="y">The y-coordinate.</param>
         /// <returns></returns>
-        public Tile TileAtWorldPosition(int x, int y)
+        public static Tile TileAtWorldPosition(int x, int y)
         {
             int tileWidth = Core.Engine.Instance.Configuration.Chunk.WidthInTiles * 32;
             int tileHeight = Core.Engine.Instance.Configuration.Chunk.HeightInTiles * 32;
@@ -208,7 +208,7 @@ namespace ProjectAona.Engine.Chunks
         /// Currently visible chunks.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Chunk> VisibleChunks()
+        public static IEnumerable<Chunk> VisibleChunks()
         {
             // Return visible chunks
             return _chunkCache.GetVisibleChunks(_camera.ScreenRectangle);
@@ -220,7 +220,7 @@ namespace ProjectAona.Engine.Chunks
         /// <param name="x">The x-coordinate.</param>
         /// <param name="y">The y-coordinate.</param>
         /// <returns></returns>
-        public bool InWorldBounds(int x, int y)
+        public static bool InWorldBounds(int x, int y)
         {
             // If x/y less then 0 or x/y are bigger than mapwidth/height times pixels, out of bounds, return false
             if (x < 0 || y < 0 || x >= Core.Engine.Instance.Configuration.World.MapWidth * 32 || y >= Core.Engine.Instance.Configuration.World.MapHeight * 32)
@@ -247,6 +247,48 @@ namespace ProjectAona.Engine.Chunks
             // If out of bounds
             else
                 return false;
+        }
+
+        public static Chunk[,] Chunks()
+        {
+            return _chunks;
+        }
+
+        // TODO: Make a tile storage/manager??
+        public static Tile[] TileNeighbors(Tile tile, bool diagonal = false)
+        {
+            Tile[] neighbors;
+
+            if (!diagonal)
+                neighbors = new Tile[4]; // Tile order: N E S W
+            else
+                neighbors = new Tile[8]; // Tile order: N E S W NE SE SW NW
+
+            Tile neighbor;
+
+            // Could be null, but that's okay.
+            neighbor = TileAtWorldPosition((int)tile.Position.X, (int)tile.Position.Y - 32); // N
+            neighbors[0] = neighbor;  
+            neighbor = TileAtWorldPosition((int)tile.Position.X + 32, (int)tile.Position.Y); // E
+            neighbors[1] = neighbor;  
+            neighbor = TileAtWorldPosition((int)tile.Position.X, (int)tile.Position.Y + 32); // S
+            neighbors[2] = neighbor;  
+            neighbor = TileAtWorldPosition((int)tile.Position.X - 32, (int)tile.Position.Y); // W
+            neighbors[3] = neighbor;  
+
+            if (diagonal)
+            {
+                neighbor = TileAtWorldPosition((int)tile.Position.X + 32, (int)tile.Position.Y - 32); //NE
+                neighbors[4] = neighbor;  
+                neighbor = TileAtWorldPosition((int)tile.Position.X + 32, (int)tile.Position.Y + 32); // SE
+                neighbors[5] = neighbor;  
+                neighbor = TileAtWorldPosition((int)tile.Position.X - 32, (int)tile.Position.Y + 32); // SW
+                neighbors[6] = neighbor;  
+                neighbor = TileAtWorldPosition((int)tile.Position.X - 32, (int)tile.Position.Y - 32); // NW
+                neighbors[7] = neighbor;  
+            }
+
+            return neighbors;
         }
 
         /// <summary>

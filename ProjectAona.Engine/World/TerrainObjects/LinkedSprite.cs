@@ -14,5 +14,7 @@ namespace ProjectAona.Engine.World.TerrainObjects
         public abstract Vector2 Position { get; set; }
 
         public abstract LinkedSpriteType Type { get; set; }
+
+        public abstract float MovementCost { get; }
     }
 }

@@ -22,8 +22,8 @@ namespace ProjectAona.Engine.World.Selection
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="terrainManager">The terrain manager.</param>
         /// <param name="buildMenuManager">The build menu manager.</param>
-        public SelectedAreaRemoval(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager)
-            : base (assetManager, camera, chunkManager, spriteBatch, terrainManager)
+        public SelectedAreaRemoval(AssetManager assetManager, Camera camera, SpriteBatch spriteBatch, TerrainManager terrainManager)
+            : base (assetManager, camera, spriteBatch, terrainManager)
         {
 
         }
@@ -74,7 +74,7 @@ namespace ProjectAona.Engine.World.Selection
         protected override void AddSelectedTile(int x, int y)
         {
             // Check if tile is in world bounds
-            if (_chunkManager.InWorldBounds(x, y))
+            if (ChunkManager.InWorldBounds(x, y))
             {
                 bool isOccupied = _terrainManager.IsTileOccupiedByOre(x, y);
 

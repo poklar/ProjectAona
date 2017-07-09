@@ -10,6 +10,8 @@ namespace ProjectAona.Engine.Tiles
     /// </summary>
     public class Tile
     {
+        private const float _baseTileMovementCost = 1;
+
         public Vector2 Position { get; set; }
 
         public TileType TileType { get; set; }
@@ -21,6 +23,23 @@ namespace ProjectAona.Engine.Tiles
         public Wall Wall { get; set; }
 
         public List<Minion> Minions { get; set; }
+
+        public bool IsEnterable { get; set; }
+
+        public float MovementCost
+        {
+            // TODO: Tiletypes should have movement costs (ie paths)
+            get
+            {
+                if (Wall != null)
+                    return _baseTileMovementCost * Wall.MovementCost;
+                else if (Flora != null)
+                    return _baseTileMovementCost * Flora.MovementCost;
+                // TODO: Add furniture
+
+                return _baseTileMovementCost;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Tile"/> class.

@@ -3,9 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Pathfinding;
 using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.World.NPC;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace ProjectAona.Engine.World
 {
@@ -21,8 +26,6 @@ namespace ProjectAona.Engine.World
 
         private AssetManager _assetManager;
 
-        private ChunkManager _chunkManager;
-
         private SpriteBatch _spriteBatch;
 
         /// <summary>
@@ -32,11 +35,10 @@ namespace ProjectAona.Engine.World
         /// <param name="assetManager">The asset manager.</param>
         /// <param name="chunkManager">The chunk manager.</param>
         /// <param name="spriteBatch">The sprite batch.</param>
-        public NPCManager(Camera camera, AssetManager assetManager, ChunkManager chunkManager, SpriteBatch spriteBatch)
+        public NPCManager(Camera camera, AssetManager assetManager, SpriteBatch spriteBatch)
         {
             _camera = camera;
             _assetManager = assetManager;
-            _chunkManager = chunkManager;
             _spriteBatch = spriteBatch;
             _IDcounter = 0;
             _minions = new Dictionary<string, Minion>();
@@ -83,7 +85,7 @@ namespace ProjectAona.Engine.World
         private void SpawnMinion()
         {
             // TODO: Make this random/at the middle of the map
-            Tile tile = _chunkManager.TileAtWorldPosition(96, 64);
+            Tile tile = ChunkManager.TileAtWorldPosition(96, 64);
             tile = EmptyTile(tile);
 
             Minion minion = new Minion(tile, _IDcounter.ToString());
@@ -114,9 +116,9 @@ namespace ProjectAona.Engine.World
             return EmptyTile(tile);
         }
 
-        public static void MoveTo(Minion minion, Tile tile)
+        public static void MoveTo(Minion minion, Tile destinationTile)
         {
-            minion.SetDestinationTile(tile);
+            minion.SetDestinationTile(destinationTile);
         }
 
         private void OnMinionChanged(Minion minion)

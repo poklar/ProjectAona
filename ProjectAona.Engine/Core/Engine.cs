@@ -7,6 +7,7 @@ using ProjectAona.Engine.Debugging;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Jobs;
+using ProjectAona.Engine.Pathfinding;
 using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World;
 using System;
@@ -86,8 +87,11 @@ namespace ProjectAona.Engine.Core
         private MouseManager _mouseManager;
         private JobManager _jobManager;
         private FrameRateCounter _frameRateCounter;
+        private static Graph _graph;
         
         public Camera Camera { get { return _camera; } }
+
+        public static Graph Graph { get { return _graph; } set { _graph = value; } }
 
         /// <summary>
         /// Adds the components.
@@ -104,20 +108,22 @@ namespace ProjectAona.Engine.Core
             _chunkManager = new ChunkManager(Game, _spriteBatch, _camera, _assetManager);
             
 
-            _mouseManager = new MouseManager(_camera, _chunkManager);
+            _mouseManager = new MouseManager(_camera);
 
             _playingStateInterface = new PlayingStateInterface(Game, _assetManager, _spriteBatch);
             _playingStateInterface.Initialize();
 
-            _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager, _chunkManager);
+            _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager);
             _chunkManager.Initialize();
 
             _jobManager = new JobManager(_terrainManager);
 
-            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _chunkManager, _playingStateInterface, _assetManager, _terrainManager, _jobManager);
+            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _playingStateInterface, _assetManager, _terrainManager, _jobManager);
 
-            _npcManager = new NPCManager(_camera, _assetManager, _chunkManager, _spriteBatch);
+            _npcManager = new NPCManager(_camera, _assetManager, _spriteBatch);
             _npcManager.Initialize();
+
+            _graph = new Graph();
         }
 
         /// <summary>

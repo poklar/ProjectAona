@@ -17,8 +17,6 @@ namespace ProjectAona.Engine.Input
     {
         private static Camera _camera;
 
-        private static ChunkManager _chunkManager;
-
         private static MouseState _previousMouseState;
 
         private static SelectionInfo _playerSelection;
@@ -27,11 +25,9 @@ namespace ProjectAona.Engine.Input
         /// Initializes a new instance of the <see cref="MouseManager"/> class.
         /// </summary>
         /// <param name="camera">The camera.</param>
-        /// <param name="chunkManager">The chunk manager.</param>
-        public MouseManager(Camera camera, ChunkManager chunkManager)
+        public MouseManager(Camera camera)
         {
             _camera = camera;
-            _chunkManager = chunkManager;
             _previousMouseState = Mouse.GetState();
         }
 
@@ -95,7 +91,7 @@ namespace ProjectAona.Engine.Input
                             if (count > 0)
                             {
                                 Vector2 position = GetWorldMousePosition();
-                                Tile tile = _chunkManager.TileAtWorldPosition((int)position.X, (int)position.Y);
+                                Tile tile = ChunkManager.TileAtWorldPosition((int)position.X, (int)position.Y);
 
                                 if (tile != null)
                                     // Move the last (visible) minion to the clicked tile
@@ -137,7 +133,7 @@ namespace ProjectAona.Engine.Input
         /// <returns></returns>
         public static SelectionInfo SelectedTileInfo(Vector2 mousePosition)
         {
-            Tile tile = _chunkManager.TileAtWorldPosition((int)mousePosition.X, (int)mousePosition.Y);
+            Tile tile = ChunkManager.TileAtWorldPosition((int)mousePosition.X, (int)mousePosition.Y);
 
             if (tile != null)
             {

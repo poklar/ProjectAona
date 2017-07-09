@@ -10,8 +10,8 @@ namespace ProjectAona.Engine.World.Selection
 {
     public class SelectWallArea : SelectionArea
     {
-        public SelectWallArea(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager)
-            : base (assetManager, camera, chunkManager, spriteBatch, terrainManager)
+        public SelectWallArea(AssetManager assetManager, Camera camera, SpriteBatch spriteBatch, TerrainManager terrainManager)
+            : base (assetManager, camera, spriteBatch, terrainManager)
         {
 
         }

@@ -12,8 +12,6 @@ namespace ProjectAona.Engine.World
 {
     public class SelectionArea
     {
-        protected ChunkManager _chunkManager;
-
         protected TerrainManager _terrainManager;
 
         protected Camera _camera;
@@ -44,15 +42,13 @@ namespace ProjectAona.Engine.World
         /// </summary>
         /// <param name="assetManager">The asset manager.</param>
         /// <param name="camera">The camera.</param>
-        /// <param name="chunkManager">The chunk manager.</param>
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="terrainManager">The terrain manager.</param>
         /// <param name="buildMenuManager">The build menu manager.</param>
-        public SelectionArea(AssetManager assetManager, Camera camera, ChunkManager chunkManager, SpriteBatch spriteBatch, TerrainManager terrainManager)
+        public SelectionArea(AssetManager assetManager, Camera camera, SpriteBatch spriteBatch, TerrainManager terrainManager)
         {
             // Setters
             _selectedTiles = new Dictionary<Rectangle, Texture2D>();
-            _chunkManager = chunkManager;
             _terrainManager = terrainManager;
             _tileSelected = false;
             _previousMouseState = Mouse.GetState();
@@ -187,7 +183,7 @@ namespace ProjectAona.Engine.World
         protected virtual void AddSelectedTile(int x, int y)
         {
             // Check if tile is in world bounds
-            if (_chunkManager.InWorldBounds(x, y))
+            if (ChunkManager.InWorldBounds(x, y))
             {
                 bool isOccupied = _terrainManager.IsTileOccupiedByWall(x, y);
 
@@ -238,7 +234,7 @@ namespace ProjectAona.Engine.World
         /// <returns></returns>
         protected Rectangle TilePosition(Vector2 worldMousePosition)
         {
-            Tile tile = _chunkManager.TileAtWorldPosition((int)worldMousePosition.X, (int)worldMousePosition.Y);
+            Tile tile = ChunkManager.TileAtWorldPosition((int)worldMousePosition.X, (int)worldMousePosition.Y);
 
             Rectangle tilePosition = new Rectangle();
 

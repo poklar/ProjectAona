@@ -21,8 +21,6 @@ namespace ProjectAona.Engine.UserInterface
 
         private Camera _camera;
 
-        private ChunkManager _chunkManager;
-
         private PlayingStateInterface _playingStateInterface;
 
         private AssetManager _assetManager;
@@ -44,17 +42,15 @@ namespace ProjectAona.Engine.UserInterface
         /// </summary>
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="camera">The camera.</param>
-        /// <param name="chunkManager">The chunk manager.</param>
         /// <param name="playingStateInterface">The playing state interface.</param>
         /// <param name="assetManager">The asset manager.</param>
         /// <param name="terrainManager">The terrain manager.</param>
-        public BuildMenuManager(SpriteBatch spriteBatch, Camera camera, ChunkManager chunkManager, PlayingStateInterface playingStateInterface, AssetManager assetManager, 
+        public BuildMenuManager(SpriteBatch spriteBatch, Camera camera, PlayingStateInterface playingStateInterface, AssetManager assetManager, 
                                 TerrainManager terrainManager, JobManager jobManager)
         {
             // Setters
             _spriteBatch = spriteBatch;
             _camera = camera;
-            _chunkManager = chunkManager;
             _playingStateInterface = playingStateInterface;
             _playingStateInterface.OnMenuClicked += OnRemoval;
             _playingStateInterface.OnSubMenuClicked += OnBuildWall;
@@ -62,11 +58,11 @@ namespace ProjectAona.Engine.UserInterface
             _terrainManager = terrainManager;
             _jobManager = jobManager;
 
-            _selectWallArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager);
+            _selectWallArea = new SelectWallArea(_assetManager, _camera, _spriteBatch, _terrainManager);
             _selectWallArea.OnSelectionSelected += OnSelectionSelected;
             _selectWallArea.OnSelectionCancelled += OnSelectionCancelled;
 
-            _selectAreaRemoval = new SelectedAreaRemoval(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager);
+            _selectAreaRemoval = new SelectedAreaRemoval(_assetManager, _camera, _spriteBatch, _terrainManager);
             _selectAreaRemoval.OnSelectionRemovalSelected += OnRemoveSelected;
             _selectAreaRemoval.OnSelectionCancelled += OnSelectionCancelled;
 
@@ -158,7 +154,7 @@ namespace ProjectAona.Engine.UserInterface
                 foreach (var rectangle in selectedTiles.Keys)
                 {
                     // Get the tile by selecting the start position of the rectangle
-                    Tile tile = _chunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
+                    Tile tile = ChunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
                     
                     if (tile != null)
                     {
@@ -192,7 +188,7 @@ namespace ProjectAona.Engine.UserInterface
             foreach (var rectangle in selectedTiles.Keys)
             {
                 // Get the tile by selecting the start position of the rectangle
-                Tile tile = _chunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
+                Tile tile = ChunkManager.TileAtWorldPosition(rectangle.X, rectangle.Y);
 
                 if (tile != null && tile.IsOccupied)
                 {

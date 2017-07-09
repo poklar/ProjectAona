@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.World.Selection;
 
@@ -6,11 +7,15 @@ namespace ProjectAona.Engine.World.TerrainObjects
 {
     public class Wall : LinkedSprite, ISelectableInterface, IQueueable
     {
+        private const float _movementCost = 0;
+
         public override Vector2 Position { get; set; }
 
         public override LinkedSpriteType Type { get; set; }
 
         public override bool HasNeighbor { get; set; }
+
+        public override float MovementCost { get { return _movementCost; } }
 
         public bool IsDestructed { get; set; }        
 
