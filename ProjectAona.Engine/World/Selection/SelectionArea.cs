@@ -2,10 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
-using ProjectAona.Engine.Menu;
 using ProjectAona.Engine.Tiles;
 using System.Collections.Generic;
 

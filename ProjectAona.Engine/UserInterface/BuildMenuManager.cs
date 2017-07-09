@@ -2,18 +2,18 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Common;
 using ProjectAona.Engine.Core;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.Tiles;
-using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World;
 using ProjectAona.Engine.World.Selection;
 using ProjectAona.Engine.World.TerrainObjects;
 using System.Collections.Generic;
 
-namespace ProjectAona.Engine.Menu
+namespace ProjectAona.Engine.UserInterface
 {
     public class BuildMenuManager
     {
@@ -28,6 +28,8 @@ namespace ProjectAona.Engine.Menu
         private AssetManager _assetManager;
 
         private TerrainManager _terrainManager;
+
+        private JobManager _jobManager;
 
         private SelectWallArea _selectWallArea;
 
@@ -46,7 +48,8 @@ namespace ProjectAona.Engine.Menu
         /// <param name="playingStateInterface">The playing state interface.</param>
         /// <param name="assetManager">The asset manager.</param>
         /// <param name="terrainManager">The terrain manager.</param>
-        public BuildMenuManager(SpriteBatch spriteBatch, Camera camera, ChunkManager chunkManager, PlayingStateInterface playingStateInterface, AssetManager assetManager, TerrainManager terrainManager)
+        public BuildMenuManager(SpriteBatch spriteBatch, Camera camera, ChunkManager chunkManager, PlayingStateInterface playingStateInterface, AssetManager assetManager, 
+                                TerrainManager terrainManager, JobManager jobManager)
         {
             // Setters
             _spriteBatch = spriteBatch;
@@ -57,6 +60,7 @@ namespace ProjectAona.Engine.Menu
             _playingStateInterface.OnSubMenuClicked += OnBuildWall;
             _assetManager = assetManager;
             _terrainManager = terrainManager;
+            _jobManager = jobManager;
 
             _selectWallArea = new SelectWallArea(_assetManager, _camera, _chunkManager, _spriteBatch, _terrainManager);
             _selectWallArea.OnSelectionSelected += OnSelectionSelected;
@@ -158,12 +162,22 @@ namespace ProjectAona.Engine.Menu
                     
                     if (tile != null)
                     {
+                        Wall wall;
                         if (_buildSelectionName == GameText.BuildMenu.BUILDWOODWALL)
-                            TerrainManager.AddWall(LinkedSpriteType.WoodWall, tile);
+                        {
+                            wall = new Wall(tile.Position, LinkedSpriteType.WoodWall);
+                            _jobManager.CreateJob(wall, tile);
+                        }
                         else if (_buildSelectionName == GameText.BuildMenu.BUILDBRICKWALL)
-                            TerrainManager.AddWall(LinkedSpriteType.BrickWall, tile);
+                        {
+                            wall = new Wall(tile.Position, LinkedSpriteType.BrickWall);
+                            _jobManager.CreateJob(wall, tile);
+                        }
                         else if (_buildSelectionName == GameText.BuildMenu.BUILDSTONEWALL)
-                            TerrainManager.AddWall(LinkedSpriteType.StoneWall, tile);
+                        {
+                            wall = new Wall(tile.Position, LinkedSpriteType.StoneWall);
+                            _jobManager.CreateJob(wall, tile);
+                        }
                     }
                 }
             }

@@ -1,17 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.TextureAtlases;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
-using ProjectAona.Engine.Common;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
-using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World.TerrainObjects;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ProjectAona.Engine.World
 {

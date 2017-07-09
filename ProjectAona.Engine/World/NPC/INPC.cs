@@ -10,10 +10,12 @@ namespace ProjectAona.Engine.World.NPC
 {
     public interface INPC
     {
-        Vector2 Position { get; set; }
+        Vector2 Position { get; }
 
         Tile CurrentTile { get; }
 
-        Tile DestinationTile { get; set; }
+        Tile DestinationTile { get; }
+
+        float Speed { get; }
     }
 }

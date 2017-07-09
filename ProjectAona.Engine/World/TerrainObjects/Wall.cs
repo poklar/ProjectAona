@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.World.Selection;
 
 namespace ProjectAona.Engine.World.TerrainObjects
 {
-    public class Wall : LinkedSprite, ISelectableInterface
+    public class Wall : LinkedSprite, ISelectableInterface, IQueueable
     {
         public override Vector2 Position { get; set; }
 

@@ -44,12 +44,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Assets\AssetManager.cs" />
-    <Compile Include="Chunk\Chunk.cs" />
-    <Compile Include="Chunk\ChunkManager.cs" />
-    <Compile Include="Chunk\ChunkCache.cs" />
-    <Compile Include="Chunk\ChunkStorage.cs" />
-    <Compile Include="Chunk\Generators\ITerrainGenerator.cs" />
-    <Compile Include="Chunk\Generators\SimpleTerrain.cs" />
+    <Compile Include="Chunks\Chunk.cs" />
+    <Compile Include="Chunks\ChunkManager.cs" />
+    <Compile Include="Chunks\ChunkCache.cs" />
+    <Compile Include="Chunks\ChunkStorage.cs" />
+    <Compile Include="Chunks\Generators\ITerrainGenerator.cs" />
+    <Compile Include="Chunks\Generators\SimpleTerrain.cs" />
     <Compile Include="Common\GameText.cs" />
     <Compile Include="Common\Noise\SimplexNoise.cs" />
     <Compile Include="Core\Config\ChunkConfig.cs" />
@@ -58,9 +58,12 @@
     <Compile Include="Core\Config\WorldConfig.cs" />
     <Compile Include="Core\Engine.cs" />
     <Compile Include="Core\GameState.cs" />
+    <Compile Include="Debugging\FrameRateCounter.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\GraphicsManager.cs" />
     <Compile Include="Input\MouseManager.cs" />
+    <Compile Include="Jobs\Job.cs" />
+    <Compile Include="Jobs\JobType.cs" />
     <Compile Include="UserInterface\BuildMenuManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\WorldSettings.cs" />
@@ -68,6 +71,8 @@
     <Compile Include="Tiles\TileType.cs" />
     <Compile Include="UserInterface\GUIElements\MenuButton.cs" />
     <Compile Include="UserInterface\PlayingStateInterface.cs" />
+    <Compile Include="Jobs\IQueueable.cs" />
+    <Compile Include="Jobs\JobManager.cs" />
     <Compile Include="World\NPCManager.cs" />
     <Compile Include="World\NPC\INPC.cs" />
     <Compile Include="World\NPC\Minion.cs" />

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.World.Selection;
 using System;
 namespace ProjectAona.Engine.World.TerrainObjects
 {
-    public class Flora : ISelectableInterface
+    public class Flora : ISelectableInterface, IQueueable
     {
         public Vector2 Position { get; set; }
 

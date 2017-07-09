@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Core.Config;
+using ProjectAona.Engine.Debugging;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
-using ProjectAona.Engine.Menu;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.UserInterface;
 using ProjectAona.Engine.World;
 using System;
@@ -83,6 +84,8 @@ namespace ProjectAona.Engine.Core
         private BuildMenuManager _buildMenuManager;
         private NPCManager _npcManager;
         private MouseManager _mouseManager;
+        private JobManager _jobManager;
+        private FrameRateCounter _frameRateCounter;
         
         public Camera Camera { get { return _camera; } }
 
@@ -94,10 +97,12 @@ namespace ProjectAona.Engine.Core
             _assetManager = new AssetManager(Game);
             _assetManager.Initialize();
 
+            _frameRateCounter = new FrameRateCounter(_assetManager, _spriteBatch);
+
             _camera = new Camera(Game);
 
             _chunkManager = new ChunkManager(Game, _spriteBatch, _camera, _assetManager);
-            _chunkManager.Initialize();
+            
 
             _mouseManager = new MouseManager(_camera, _chunkManager);
 
@@ -105,8 +110,11 @@ namespace ProjectAona.Engine.Core
             _playingStateInterface.Initialize();
 
             _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager, _chunkManager);
+            _chunkManager.Initialize();
 
-            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _chunkManager, _playingStateInterface, _assetManager, _terrainManager);
+            _jobManager = new JobManager(_terrainManager);
+
+            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _chunkManager, _playingStateInterface, _assetManager, _terrainManager, _jobManager);
 
             _npcManager = new NPCManager(_camera, _assetManager, _chunkManager, _spriteBatch);
             _npcManager.Initialize();
@@ -131,7 +139,9 @@ namespace ProjectAona.Engine.Core
             _buildMenuManager.Update(gameTime);
             _npcManager.Update(gameTime);
             _playingStateInterface.Update(gameTime);
+            _jobManager.Update(gameTime);
             _mouseManager.Update(gameTime);
+            _frameRateCounter.Update(gameTime);
         }
 
         /// <summary>
@@ -145,6 +155,7 @@ namespace ProjectAona.Engine.Core
             _buildMenuManager.Draw(gameTime);
             _npcManager.Draw(gameTime);
             _playingStateInterface.Draw(gameTime);
+            _frameRateCounter.Draw(gameTime);
         }
 
 

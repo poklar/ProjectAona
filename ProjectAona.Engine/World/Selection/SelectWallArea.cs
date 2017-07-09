@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
-using ProjectAona.Engine.Menu;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using ProjectAona.Engine.Input;

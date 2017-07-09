@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectAona.Engine.Assets;
-using ProjectAona.Engine.Chunk;
+using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.World.NPC;
@@ -57,7 +57,9 @@ namespace ProjectAona.Engine.World
         /// <param name="gameTime">The game time.</param>
         public void Update(GameTime gameTime)
         {
-
+            if (_minions.Count != 0)
+                foreach (Minion minion in _minions.Values)
+                    minion.Update(gameTime);
         }
 
         /// <summary>
@@ -68,10 +70,9 @@ namespace ProjectAona.Engine.World
         {
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, _camera.View);
 
-            foreach (Minion minion in _minions.Values)
-            {
-                _spriteBatch.Draw(_minionTexture, minion.Position, Color.White);
-            }
+            if (_minions.Count != 0)
+                foreach (Minion minion in _minions.Values)
+                    _spriteBatch.Draw(_minionTexture, minion.Position, Color.White);
 
             _spriteBatch.End();
         }
@@ -86,7 +87,7 @@ namespace ProjectAona.Engine.World
             tile = EmptyTile(tile);
 
             Minion minion = new Minion(tile, _IDcounter.ToString());
-            tile.Minions.Add(minion);
+            minion.MinionChanged += OnMinionChanged;
             _minions.Add(_IDcounter.ToString(), minion);
             _IDcounter++;
         }
@@ -111,6 +112,16 @@ namespace ProjectAona.Engine.World
 
             // Recall this function until an empty tile is found
             return EmptyTile(tile);
+        }
+
+        public static void MoveTo(Minion minion, Tile tile)
+        {
+            minion.SetDestinationTile(tile);
+        }
+
+        private void OnMinionChanged(Minion minion)
+        {
+
         }
     }
 }
