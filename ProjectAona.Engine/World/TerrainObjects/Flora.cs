@@ -16,6 +16,8 @@ namespace ProjectAona.Engine.World.TerrainObjects
 
         public float MovementCost { get { return _movementCost; } }
 
+        public BlueprintType BlueprintType { get; set; }
+
         // TODO: Add a regrowth timer? Especially for berries?
 
         public Flora(Vector2 position, FloraType type)

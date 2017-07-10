@@ -2,6 +2,6 @@
 {
     public interface IQueueable
     {
-
+        BlueprintType BlueprintType { get; set; }
     }
 }

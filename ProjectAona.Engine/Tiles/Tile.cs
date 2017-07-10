@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.World.NPC;
 using ProjectAona.Engine.World.TerrainObjects;
 using System.Collections.Generic;
@@ -24,7 +25,9 @@ namespace ProjectAona.Engine.Tiles
 
         public List<Minion> Minions { get; set; }
 
-        public bool IsEnterable { get; set; }
+        public IQueueable Blueprint { get; set; }
+
+        public EnterabilityType Enterability { get; set; }
 
         public float MovementCost
         {
@@ -50,6 +53,7 @@ namespace ProjectAona.Engine.Tiles
             Position = position;
             TileType = tileType;
             IsOccupied = false;
+            Enterability = EnterabilityType.IsEnterable;
             Minions = new List<Minion>();
         }
     }

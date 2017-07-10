@@ -118,7 +118,7 @@ namespace ProjectAona.Engine.World
 
         public static void MoveTo(Minion minion, Tile destinationTile)
         {
-            minion.SetDestinationTile(destinationTile);
+                minion.SetDestinationTile(destinationTile);
         }
 
         private void OnMinionChanged(Minion minion)

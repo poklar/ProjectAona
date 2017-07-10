@@ -21,6 +21,8 @@ namespace ProjectAona.Engine.World.TerrainObjects
 
         public bool Visible { get; set; }
 
+        public BlueprintType BlueprintType { get; set; }
+
         public Wall(Vector2 position, LinkedSpriteType type)
         {
             Position = position;

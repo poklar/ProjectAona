@@ -31,7 +31,9 @@ namespace ProjectAona.Engine.Assets
 
         public Dictionary<string, Rectangle> WallsSelectionsTextureAtlasXML { get; private set; }
 
-        public Texture2D MenuButton { get; private set; }
+        public Texture2D MenuItems { get; private set; }
+
+        public Dictionary<string, Rectangle> MenuItemsTextureAtlasXML { get; private set; }
 
         public SpriteFont InGameFont { get; private set; }
 
@@ -42,6 +44,8 @@ namespace ProjectAona.Engine.Assets
         public Texture2D NPCNormal { get; private set; }
 
         public Texture2D NPCBusy { get; private set; }
+
+        public Texture2D PathPixel { get; private set; }
 
         private Game _game;
 
@@ -90,13 +94,15 @@ namespace ProjectAona.Engine.Assets
 
                 // Xml
                 WallsSelectionsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\wallsSelections");
+                MenuItemsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\menuItems");
 
                 // User Interface
-                MenuButton = _game.Content.Load<Texture2D>("Textures\\UserInterface\\menuButton");
+                MenuItems = _game.Content.Load<Texture2D>("Textures\\UserInterface\\menuItems");
 
                 // NPC
                 NPCNormal = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_normal");
                 NPCBusy = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_busy");
+                PathPixel = _game.Content.Load<Texture2D>("Textures\\NPCs\\pathPixel");
             }
             catch(Exception e)
             {

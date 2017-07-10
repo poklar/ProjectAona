@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+<Asset Type="System.Collections.Generic.Dictionary[System.String, Microsoft.Xna.Framework.Rectangle]">
+<Item><Key>menuButton</Key><Value>0 0 960 40</Value></Item>
+<Item><Key>explanationBox</Key><Value>0 40 250 75</Value></Item>
+<Item><Key>taskTextBox</Key><Value>0 115 50 16</Value></Item>
+<Item><Key>taskButton</Key><Value>0 131 48 48</Value></Item>
+</Asset>
+</XnaContent>

@@ -8,6 +8,7 @@ using ProjectAona.Engine.Common;
 using ProjectAona.Engine.Input;
 using System.Diagnostics;
 using ProjectAona.Engine.World.Selection;
+using MonoGame.Extended.TextureAtlases;
 
 namespace ProjectAona.Engine.UserInterface
 {
@@ -16,9 +17,9 @@ namespace ProjectAona.Engine.UserInterface
     /// </summary>
     public class PlayingStateInterface
     {
-        static private List<MenuButton> _menuButtons;
+        private static List<MenuButton> _menuButtons;
 
-        static private List<MenuButton> _subMenuButtons;
+        private static List<MenuButton> _subMenuButtons;
 
         private Game _game;
 
@@ -27,6 +28,17 @@ namespace ProjectAona.Engine.UserInterface
         private SpriteBatch _spriteBatch;
 
         static private bool _showSubMenu;
+
+        private TextureAtlas _menuItems;
+
+        #region Menu item names for texture atlas
+
+        private string _menu = "menuButton";
+        protected string _subMenu = "subMenuButton";
+        protected string _task = "taskButton";
+        protected string _explanation = "explanationBox";
+
+        #endregion
 
         public delegate void ElementClicked(string element, MouseState mouseState);
         public event ElementClicked OnSubMenuClicked;
@@ -54,9 +66,11 @@ namespace ProjectAona.Engine.UserInterface
         /// </summary>
         public void Initialize()
         {
+            _menuItems = new TextureAtlas("menuItems", _assetManager.MenuItems, _assetManager.MenuItemsTextureAtlasXML);
+
             //--------------- Main menu buttons ---------------\\
-            MenuButton buildButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.BUILDWALL, _spriteBatch);
-            MenuButton testButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.REMOVE, _spriteBatch);
+            MenuButton buildButton = new MenuButton(_menuItems[_menu], _assetManager.InGameFont, GameText.BuildMenu.BUILDWALL, _spriteBatch);
+            MenuButton testButton = new MenuButton(_menuItems[_menu], _assetManager.InGameFont, GameText.BuildMenu.REMOVE, _spriteBatch);
 
             // Add the buttons
             _menuButtons.Add(buildButton);
@@ -65,7 +79,7 @@ namespace ProjectAona.Engine.UserInterface
             // Devide the width of the screen by the total number of main menu buttons. So they will spread evenly
             float textureWidth = _game.GraphicsDevice.Viewport.Width / _menuButtons.Count;
             // By subtracting the button height from the height of the screen, you place them down at the bottom of the screen
-            int heightIndex = _game.GraphicsDevice.Viewport.Height - _assetManager.MenuButton.Height;
+            int heightIndex = _game.GraphicsDevice.Viewport.Height - _menuItems[_menu].Height;
             // Create a width index set to 0. Used to positon the main menu buttons next to each other 
             int widthIndex = 0;
 
@@ -74,7 +88,7 @@ namespace ProjectAona.Engine.UserInterface
             {
                 // Set the button position as a rectangle with the start position as widthIndex/heightIndex and the size of the previous calculated width, 
                 // and the height in pixels from the texture
-                button.Position = new Rectangle(widthIndex, heightIndex, (int)textureWidth, _assetManager.MenuButton.Height);
+                button.Position = new Rectangle(widthIndex, heightIndex, (int)textureWidth, _menuItems[_menu].Height);
                 // Subscribe to the OnMenuClick event
                 button.OnClickEvent += OnMenuClick;
 
@@ -83,9 +97,9 @@ namespace ProjectAona.Engine.UserInterface
             }
 
             //--------------- Sub menu buttons ---------------\\
-            MenuButton buildWoodWallButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.BUILDWOODWALL, _spriteBatch);
-            MenuButton buildBrickWallButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.BUILDBRICKWALL, _spriteBatch);
-            MenuButton buildStoneWallButton = new MenuButton(_assetManager.MenuButton, _assetManager.InGameFont, GameText.BuildMenu.BUILDSTONEWALL, _spriteBatch);
+            MenuButton buildWoodWallButton = new MenuButton(_menuItems[_menu], _assetManager.InGameFont, GameText.BuildMenu.BUILDWOODWALL, _spriteBatch);
+            MenuButton buildBrickWallButton = new MenuButton(_menuItems[_menu], _assetManager.InGameFont, GameText.BuildMenu.BUILDBRICKWALL, _spriteBatch);
+            MenuButton buildStoneWallButton = new MenuButton(_menuItems[_menu], _assetManager.InGameFont, GameText.BuildMenu.BUILDSTONEWALL, _spriteBatch);
 
             // Add the buttons
             _subMenuButtons.Add(buildWoodWallButton);
@@ -95,7 +109,7 @@ namespace ProjectAona.Engine.UserInterface
             // Devide the width of the screen by the total number of main menu buttons. So they will spread evenly
             textureWidth = _game.GraphicsDevice.Viewport.Width / _menuButtons.Count;
             // The screen height is subtracted by the menu buttons height times the total of buttons plus 1. The plus one stands for the main menu button
-            heightIndex = _game.GraphicsDevice.Viewport.Height - (_assetManager.MenuButton.Height * (_subMenuButtons.Count + 1));
+            heightIndex = _game.GraphicsDevice.Viewport.Height - (_menuItems[_menu].Height * (_subMenuButtons.Count + 1));
             // Create a width index set to 0
             widthIndex = 0;
 
@@ -104,12 +118,12 @@ namespace ProjectAona.Engine.UserInterface
             {
                 // Set the button position as a rectangle with the start position as widthIndex/heightIndex and the size of the width, 
                 // and the height in pixels from the texture
-                button.Position = new Rectangle(widthIndex, heightIndex, (int)textureWidth, _assetManager.MenuButton.Height);
+                button.Position = new Rectangle(widthIndex, heightIndex, (int)textureWidth, _menuItems[_menu].Height);
                 // Subscribe to the event OnSubMenuClick
                 button.OnClickEvent += OnSubMenuClick;
 
                 // Add the height in pixels to the previous calculated height index
-                heightIndex += _assetManager.MenuButton.Height;
+                heightIndex += _menuItems[_menu].Height;
             }
 
         }

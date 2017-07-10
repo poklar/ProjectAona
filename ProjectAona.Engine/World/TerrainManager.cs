@@ -77,30 +77,35 @@ namespace ProjectAona.Engine.World
                     for (int y = 0; y < chunk.HeightInTiles; y++)
                     {
                         // Get the position from the tile
-                        Vector2 position = chunk.TileAt(x, y).Position;
+                        Tile tile = chunk.TileAt(x, y);
 
-                        // If a flora object is positioned on the same as the tile
-                        if (_floraObjects.ContainsKey(position))
+                        if (tile.IsOccupied)
                         {
-                            // Get that flora object
-                            Flora flora = _floraObjects[position];
+                            if (tile.Wall != null && tile.Blueprint == null)
+                            {
+                                TextureRegion2D wallTexture = SelectWallSprite(tile.Wall);
 
-                            // And draw it 
-                            _spriteBatch.Draw(FloraTexture(flora.FloraType), flora.Position, Color.White);
+                                _spriteBatch.Draw(wallTexture.Texture, tile.Position, wallTexture.Bounds, Color.White);
+                            }
+
+                            if (tile.Flora != null && tile.Blueprint == null)
+                                _spriteBatch.Draw(FloraTexture(tile.Flora.FloraType), tile.Position, Color.White);
+
+                            if (tile.Blueprint != null)
+                            {
+                                if (tile.Blueprint.GetType() == typeof(Wall))
+                                {
+                                    // TODO: THIS IS UNACCEPTABLE but I don't know any other way right now
+                                    LinkedSprite ls = new Wall(tile.Position, LinkedSpriteType.Stockpile);
+
+                                    TextureRegion2D wallTexture = SelectWallSprite(ls);
+
+                                    _spriteBatch.Draw(wallTexture.Texture, tile.Position, wallTexture.Bounds, Color.White);
+                                }
+                            }
                         }
-
-                        // If a wall object is positioned on the same as the tile
-                        if (_wallObjects.ContainsKey(position))
-                        {
-                            // Get that wall object
-                            Wall wall = _wallObjects[position];
-                            
-                            // Select the correct wall sprite
-                            TextureRegion2D wallTexture = SelectWallSprite(wall);
-
-                            // And draw it
-                            _spriteBatch.Draw(wallTexture.Texture, wall.Position, wallTexture.Bounds, Color.White);
-                        }
+                        
+                        
                     }
                 }
             }
@@ -139,20 +144,25 @@ namespace ProjectAona.Engine.World
         public static void AddWall(LinkedSpriteType type, Tile tile)
         {
             // If the tile already hasn't an object and if the wall object doesn't already exists
-            if (!tile.IsOccupied && !_wallObjects.ContainsKey(tile.Position))
+            if (!_wallObjects.ContainsKey(tile.Position))
             {
-                // Create a new wall object and set it to the tile's position and pass the wall type
-                Wall wall = new Wall(tile.Position, type);
+                if (tile.Flora == null) // TODO: Add/Check other objects
+                {
+                    // Create a new wall object and set it to the tile's position and pass the wall type
+                    Wall wall = new Wall(tile.Position, type);
 
-                // Tile is occupied now
-                tile.IsOccupied = true;
-                // Pass the wall object to the tile
-                tile.Wall = wall;
+                    // Tile is occupied now
+                    tile.IsOccupied = true;
+                    // Pass the wall object to the tile
+                    tile.Wall = wall;
+                    tile.Blueprint = null;
+                    tile.Enterability = EnterabilityType.Never;
 
-                // Add the wall object to the dictionary 
-                _wallObjects.Add(tile.Position, wall);
+                    // Add the wall object to the dictionary 
+                    _wallObjects.Add(tile.Position, wall);
 
-                ResetGraph();
+                    ResetGraph();
+                }
             }
         }
 

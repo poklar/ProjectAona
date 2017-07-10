@@ -88,5 +88,10 @@ namespace ProjectAona.Engine.Pathfinding
 
             return _path.Count;
         }
+
+        public Stack<Tile> GetStack()
+        {
+            return _path;
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.Pathfinding;
 using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.World.Selection;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ProjectAona.Engine.World.NPC
@@ -13,11 +15,15 @@ namespace ProjectAona.Engine.World.NPC
         private Tile _destinationTile;
         private Tile _nextTile;
         private AStar _aStar;
+        private Job _job;
+        private float _jobSearchCooldownInSec;
 
         // TODO: Should be a number
         public string ID { get; set; }
 
         public Vector2 Position { get { return _position; } set { _position = value; } }
+
+        public List<JobType> Skills { get; set; }
 
         public Tile CurrentTile
         {
@@ -56,9 +62,21 @@ namespace ProjectAona.Engine.World.NPC
             _position = tile.Position;
             ID = id;
             Speed = speed;
+            _jobSearchCooldownInSec = 0;
+            Skills = new List<JobType>();
+            Skills.Add(JobType.Building);
         }
 
         public void Update(GameTime gameTime)
+        {
+            UpdateMovement(gameTime);
+            UpdateJob(gameTime);
+
+            //if (MinionChanged != null)
+            //    MinionChanged(this);
+        }
+
+        private void UpdateMovement(GameTime gameTime)
         {
             if (CurrentTile == DestinationTile)
             {
@@ -80,9 +98,8 @@ namespace ProjectAona.Engine.World.NPC
                     // No path found
                     if (_aStar.Length() == 0)
                     {
-                        //TODO: cancel job?
-                        _nextTile = _destinationTile = _currentTile; // Do this in job?
-                        Debug.WriteLine("cancel");
+                        AbandonJob();
+
                         return;
                     }
 
@@ -92,6 +109,7 @@ namespace ProjectAona.Engine.World.NPC
 
                 // Get the next location 
                 _nextTile = _aStar.Pop();
+
             }
 
             float distance = Vector2.Distance(CurrentTile.Position, _nextTile.Position);
@@ -99,24 +117,89 @@ namespace ProjectAona.Engine.World.NPC
             Vector2 direction = Vector2.Normalize(_nextTile.Position - CurrentTile.Position);
 
             _position += direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            
-            if (Vector2.Distance(CurrentTile.Position, _position) >= distance)
-            {
-                CurrentTile = _nextTile;
-            }
 
-            //if (MinionChanged != null)
-            //    MinionChanged(this);
+            if (Vector2.Distance(CurrentTile.Position, _position) >= distance)
+                CurrentTile = _nextTile;
         }
 
-        public void SetCurrentTile(Tile tile)
+        private void UpdateJob(GameTime gameTime)
         {
-            CurrentTile = tile;
+            if (_jobSearchCooldownInSec > 0)
+                _jobSearchCooldownInSec -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (_job == null)
+            {
+                if (_jobSearchCooldownInSec > 0)
+                    return;
+
+                LookForJob();
+
+                if (_job == null)
+                {
+                    _jobSearchCooldownInSec = 10;
+
+                    //DestinationTile = CurrentTile;
+
+                    return;
+                }
+            }
+
+            if (CurrentTile == _job.Tile)
+            {
+                _job.DoJob((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+                _jobSearchCooldownInSec = 0;
+            }
+        }
+
+        private void LookForJob()
+        {
+            if (JobQueue.Peek() != null && Skills.Contains(JobQueue.Peek().JobType))
+                _job = JobQueue.Dequeue();
+
+            // No job
+            if (_job == null)
+                return;
+
+            DestinationTile = _job.Tile;
+
+            _job.JobStopped += OnJobStopped;
+
+            _aStar = new AStar(CurrentTile, DestinationTile);
+
+            // The first tile can be ignored, because that's where the minion currently is in
+            _nextTile = _aStar.Pop();
+
+            // No path was found
+            if (_aStar.Length() == 0)
+                AbandonJob();
         }
 
         public void SetDestinationTile(Tile tile)
         {
-            _destinationTile = tile;
+            if (_job != null)
+                AbandonJob();
+
+            DestinationTile = tile;
+        }
+
+        private void AbandonJob()
+        {
+            _nextTile = DestinationTile = CurrentTile;
+
+            if (_job != null)
+                JobQueue.Enqueue(_job);
+
+            _jobSearchCooldownInSec = 15;
+
+            _job = null;
+        }
+
+        private void OnJobStopped(Job job)
+        {
+            job.JobStopped -= OnJobStopped;
+
+            _job = null;
         }
 
         public string GetName()

@@ -23,10 +23,6 @@ namespace ProjectAona.Engine.Jobs
         public void Update(GameTime gameTime)
         {
             double elapsedTime = gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (_jobs.Count != 0)
-                foreach (Job job in _jobs.Keys.ToList()) //TODO: Fix! Creating a list is expensive: see https://stackoverflow.com/questions/604831/collection-was-modified-enumeration-operation-may-not-execute
-                    job.JobTimer -= (float)elapsedTime;
         }
 
         public void CreateJob(IQueueable item, Tile tile)
@@ -34,21 +30,32 @@ namespace ProjectAona.Engine.Jobs
             JobType jobType =  JobType.Idle;
 
             if (item.GetType() == typeof(Wall))
+            {
                 jobType = JobType.Building;
+
+                Wall wall = item as Wall;
+                wall.BlueprintType = BlueprintType.Stockpile;
+            }
 
             Job job = new Job(tile, jobType);
             job.JobObjectPrototype = item;
             job.JobComplete += OnJobComplete;
             job.JobCancel += OnJobCancel;
 
+            tile.Enterability = EnterabilityType.IsEnterable;
+            tile.Blueprint = item;
+            tile.IsOccupied = true;
+
             _jobs.Add(job, item);
+
+            JobQueue.Enqueue(job);
         }
 
-        private void OnJobComplete(IQueueable item, Job job)
+        private void OnJobComplete(Job job)
         {
-            if (item.GetType() == typeof(Wall))
+            if (job.JobObjectPrototype.GetType() == typeof(Wall))
             {
-                Wall wall = item as Wall;
+                Wall wall = job.JobObjectPrototype as Wall;
 
                 TerrainManager.AddWall(wall.Type, job.Tile);
             }
@@ -59,7 +66,7 @@ namespace ProjectAona.Engine.Jobs
             job = null;
         }
 
-        private void OnJobCancel(IQueueable item, Job job)
+        private void OnJobCancel(Job job)
         {
 
         }

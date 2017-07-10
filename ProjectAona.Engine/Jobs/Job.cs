@@ -1,12 +1,11 @@
 ﻿using ProjectAona.Engine.Tiles;
-using ProjectAona.Engine.World;
-using System.Linq;
 
 namespace ProjectAona.Engine.Jobs
 {
     public class Job
     {
         private float _jobTimer;
+        private bool _jobRepeats;
 
         public Tile Tile { get; private set; }
 
@@ -16,17 +15,34 @@ namespace ProjectAona.Engine.Jobs
 
         public IQueueable JobObject { get; set; } // TODO: Do I need this? // Finished product
 
-        public float JobTimer { get { return _jobTimer; } set { _jobTimer = value; if (_jobTimer <= 0) JobComplete(JobObjectPrototype, this); } } // In seconds
+        public float JobTimer { get { return _jobTimer; } set { _jobTimer = value;  } } // In seconds
 
-        public delegate void JobHandler(IQueueable item, Job job);
+        public delegate void JobHandler(Job job);
         public event JobHandler JobComplete;
         public event JobHandler JobCancel;
+        public event JobHandler JobStopped;
         
         public Job(Tile tile, JobType jobType, float jobTimer = 5f)
         {
             Tile = tile;
             JobType = jobType;
             _jobTimer = jobTimer;
+            _jobRepeats = false;
+        }
+
+        public void DoJob(float workTime)
+        {
+            JobTimer -= workTime;
+
+            if (JobTimer <= 0)
+            {
+                if (JobComplete != null)
+                    JobComplete(this);
+
+                if (!_jobRepeats)
+                    if (JobStopped != null)
+                        JobStopped(this);
+            }
         }
     }
 }

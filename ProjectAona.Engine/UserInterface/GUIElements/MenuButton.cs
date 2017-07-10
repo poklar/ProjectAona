@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.TextureAtlases;
 
 namespace ProjectAona.Test.UserInterface.GUIElements
 {
@@ -9,7 +10,7 @@ namespace ProjectAona.Test.UserInterface.GUIElements
     /// </summary>
     public class MenuButton
     {
-        private Texture2D _texture;
+        private TextureRegion2D _texture;
 
         private SpriteFont _font;
 
@@ -33,7 +34,7 @@ namespace ProjectAona.Test.UserInterface.GUIElements
         /// <param name="font">The font.</param>
         /// <param name="menuText">The menu text.</param>
         /// <param name="spriteBatch">The sprite batch.</param>
-        public MenuButton(Texture2D texture, SpriteFont font, string menuText, SpriteBatch spriteBatch)
+        public MenuButton(TextureRegion2D texture, SpriteFont font, string menuText, SpriteBatch spriteBatch)
         {
             _texture = texture;
             _font = font;
@@ -64,7 +65,7 @@ namespace ProjectAona.Test.UserInterface.GUIElements
         /// </summary>
         public void Draw()
         {
-            _spriteBatch.Draw(_texture, _position, Color.White);
+            _spriteBatch.Draw(_texture.Texture, _position, _texture.Bounds, Color.White);
             _spriteBatch.DrawString(_font, _menuText, new Vector2(_position.X + 20, _position.Y + 10), Color.White);
         }
     }

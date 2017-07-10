@@ -141,22 +141,18 @@ namespace ProjectAona.Engine.Chunks
             // Offset for text
             Vector2 textOffset = Vector2.UnitY * 20;
             // Position of the text
-            Vector2 textPosition = Vector2.UnitY * 260;
-            // Draw string
-            _spriteBatch.DrawString(_assetManager.DefaultFont, "Currently loaded worldQuadrants", textPosition, Color.White);
+            Vector2 textPosition = Vector2.UnitY * 0;
 
-            // Increase the position
-            textPosition += textOffset;
+            int chunkCounter = 0;
 
             // For each chunk that is currently stored
             foreach (var chunk in _chunkCache.QuadrantsCurrentlyInMemory)
-            {
-                // Draw the chunk position
-                _spriteBatch.DrawString(_assetManager.DefaultFont, chunk.ToString(), textPosition, Color.White);
+                chunkCounter++;
 
-                // Increase text position
-                textPosition += textOffset;
-            }
+            // Draw string
+            _spriteBatch.DrawString(_assetManager.DefaultFont, "Loaded chunks: " + chunkCounter, textPosition, Color.White);
+
+
         }
 
         /// <summary>
