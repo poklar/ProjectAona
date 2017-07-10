@@ -1,3 +1,17 @@
+10-07-2017
+version: 0.1.9
+
+Friendly npc's called minions. My minion can now take a job and finish it. A* pathfinding is implemented.
+
+ToDo:
+* Expand GUI
+* Build a remove/cancel function
+* Mining/Chopping
+* Clean up code
+(* Drops)
+(* Inventory)
+
+----------------
 06-07-2017
 version: 0.1.5
 
