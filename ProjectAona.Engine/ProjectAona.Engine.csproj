@@ -74,21 +74,35 @@
     <Compile Include="Pathfinding\Path.cs" />
     <Compile Include="Pathfinding\PriorityQueue.cs" />
     <Compile Include="Tiles\EnterablityType.cs" />
-    <Compile Include="UserInterface\BuildMenuManager.cs" />
+    <Compile Include="UserInterface\GUIElements\TaskButton.cs" />
+    <Compile Include="UserInterface\IngameMenu\BuildMenu\BuildMenuUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\WorldSettings.cs" />
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileType.cs" />
     <Compile Include="UserInterface\GUIElements\MenuButton.cs" />
-    <Compile Include="UserInterface\PlayingStateInterface.cs" />
+    <Compile Include="UserInterface\IngameMenu\BuildMenu\StorageManager.cs" />
+    <Compile Include="UserInterface\IngameMenu\BuildMenu\StructureManager.cs" />
+    <Compile Include="UserInterface\IngameMenu\IngameUI.cs" />
     <Compile Include="Jobs\IQueueable.cs" />
     <Compile Include="Jobs\JobManager.cs" />
+    <Compile Include="UserInterface\IngameMenu\BuildMenu\StorageUI.cs" />
+    <Compile Include="UserInterface\IngameMenu\BuildMenu\StructureUI.cs" />
+    <Compile Include="World\Items\Decor\Furniture.cs" />
+    <Compile Include="World\Items\IStackable.cs" />
+    <Compile Include="World\Items\ItemManager.cs" />
+    <Compile Include="World\Items\Resources\Food.cs" />
+    <Compile Include="World\Items\Resources\Material.cs" />
     <Compile Include="World\NPCManager.cs" />
     <Compile Include="World\NPC\INPC.cs" />
     <Compile Include="World\NPC\Minion.cs" />
     <Compile Include="World\Selection\ISelectableInterface.cs" />
+    <Compile Include="World\Selection\SelectCancelJobArea.cs" />
     <Compile Include="World\Selection\SelectedAreaRemoval.cs" />
+    <Compile Include="World\Selection\SelectionType.cs" />
     <Compile Include="World\Selection\SelectWallArea.cs" />
+    <Compile Include="World\Stockpile.cs" />
+    <Compile Include="World\StockpileManager.cs" />
     <Compile Include="World\TerrainManager.cs" />
     <Compile Include="World\TerrainObjects\Flora.cs" />
     <Compile Include="World\TerrainObjects\FloraType.cs" />
@@ -107,14 +121,23 @@
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
+    <None Include="app.config" />
     <None Include="app.manifest" />
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="UserInterface\IngameMenu\AgricultureMenu\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

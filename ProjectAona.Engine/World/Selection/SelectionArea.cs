@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.TextureAtlases;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
@@ -12,13 +13,13 @@ namespace ProjectAona.Engine.World
 {
     public class SelectionArea
     {
-        protected TerrainManager _terrainManager;
-
         protected Camera _camera;
 
         private SpriteBatch _spriteBatch;
 
-        protected Dictionary<Rectangle, Texture2D> _selectedTiles;
+        private TextureAtlas _terrainObjects;
+
+        protected Dictionary<Rectangle, TextureRegion2D> _selectedTiles;
 
         protected bool _tileSelected;
 
@@ -28,14 +29,14 @@ namespace ProjectAona.Engine.World
 
         protected Rectangle _startTilePosition;
 
-        protected Texture2D _validSelectionTexture;
-        protected Texture2D _invalidSelectionTexture;
+        protected TextureRegion2D _validSelectionTexture;
+        protected TextureRegion2D _invalidSelectionTexture;
 
-        public delegate void SelectionClicked(Dictionary<Rectangle, Texture2D> selectedTiles);
-        public event SelectionClicked OnSelectionSelected;
+        public delegate void SelectionClicked(Dictionary<Rectangle, TextureRegion2D> selectedTiles);
+        public event SelectionClicked SelectionSelected;
 
         public delegate void SelectionCancelled();
-        public virtual event SelectionCancelled OnSelectionCancelled;
+        public virtual event SelectionCancelled CancelledSelection;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectionArea"/> class.
@@ -45,15 +46,17 @@ namespace ProjectAona.Engine.World
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="terrainManager">The terrain manager.</param>
         /// <param name="buildMenuManager">The build menu manager.</param>
-        public SelectionArea(AssetManager assetManager, Camera camera, SpriteBatch spriteBatch, TerrainManager terrainManager)
+        public SelectionArea(AssetManager assetManager, Camera camera, SpriteBatch spriteBatch)
         {
             // Setters
-            _selectedTiles = new Dictionary<Rectangle, Texture2D>();
-            _terrainManager = terrainManager;
+            _selectedTiles = new Dictionary<Rectangle, TextureRegion2D>();
             _tileSelected = false;
             _previousMouseState = Mouse.GetState();
-            _validSelectionTexture = assetManager.Selection;
-            _invalidSelectionTexture = assetManager.InvalidSelection;
+
+            _terrainObjects = new TextureAtlas("terrainObjects", assetManager.TerrainObjects, assetManager.TerrainObjectsTextureAtlasXML);
+
+            _validSelectionTexture = _terrainObjects["selection"];
+            _invalidSelectionTexture = _terrainObjects["invalidSelection"];
             _spriteBatch = spriteBatch;
             _camera = camera;
             _validSelection = true;
@@ -81,17 +84,17 @@ namespace ProjectAona.Engine.World
             if (_tileSelected && currentMouseState.LeftButton == ButtonState.Released && _previousMouseState.LeftButton == ButtonState.Pressed)
             {
                 if (_validSelection && !MouseManager.IsMouseOverMenu())
-                    OnSelectionSelected(_selectedTiles);
+                    SelectionSelected(_selectedTiles);
 
                 // Player is done selecting tiles
                 _tileSelected = false;
             }
 
             // If player presses right mouse button during selection
-            if (_tileSelected && currentMouseState.RightButton == ButtonState.Pressed)
+            if (currentMouseState.RightButton == ButtonState.Pressed)
             {
                 _tileSelected = false;
-                OnSelectionCancelled();
+                CancelledSelection();
             }
 
             _previousMouseState = currentMouseState;
@@ -124,7 +127,7 @@ namespace ProjectAona.Engine.World
         public virtual void CancelSelection()
         {
             _tileSelected = false;
-            OnSelectionCancelled();
+            CancelledSelection();
         }
 
         /// <summary>
@@ -185,7 +188,7 @@ namespace ProjectAona.Engine.World
             // Check if tile is in world bounds
             if (ChunkManager.InWorldBounds(x, y))
             {
-                bool isOccupied = _terrainManager.IsTileOccupiedByWall(x, y);
+                bool isOccupied = TerrainManager.IsTileOccupiedByWall(x, y);
 
                 bool isSelectionValid = true;
                 _validSelection = true;
@@ -209,7 +212,7 @@ namespace ProjectAona.Engine.World
         protected void RenderSelectedTiles()
         {
             foreach ( var tile in _selectedTiles)
-                _spriteBatch.Draw(tile.Value, new Vector2(tile.Key.X, tile.Key.Y), Color.White);
+                _spriteBatch.Draw(tile.Value.Texture, new Vector2(tile.Key.X, tile.Key.Y), tile.Value.Bounds, Color.White);
         }
 
         /// <summary>
@@ -224,7 +227,7 @@ namespace ProjectAona.Engine.World
             Rectangle tilePosition = TilePosition(worldMousePosition);
 
             if (!tilePosition.IsEmpty && tilePosition.Contains(worldMousePosition.X, worldMousePosition.Y))
-                _spriteBatch.Draw(_validSelectionTexture, new Vector2(tilePosition.X, tilePosition.Y), Color.White);
+                _spriteBatch.Draw(_validSelectionTexture.Texture, new Vector2(tilePosition.X, tilePosition.Y), _validSelectionTexture.Bounds, Color.White);
         }
 
         /// <summary>

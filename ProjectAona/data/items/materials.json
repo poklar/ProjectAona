@@ -1,0 +1,29 @@
+{
+    "Materials": [
+        {
+            "ItemName": "Wood",
+            "MovementCost": 1,
+            "MaxStackSize": 50
+        },
+        {
+            "ItemName": "Dirt",
+            "MovementCost": 1,
+            "MaxStackSize": 50
+        },
+        {
+            "ItemName": "CoalOre",
+            "MovementCost": 1,
+            "MaxStackSize": 50
+        },
+        {
+            "ItemName": "StoneOre",
+            "MovementCost": 1,
+            "MaxStackSize": 50
+        },
+        {
+            "ItemName": "IronOre",
+            "MovementCost": 1,
+            "MaxStackSize": 50
+        }
+    ]
+}

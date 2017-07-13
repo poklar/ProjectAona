@@ -6,9 +6,9 @@ using MonoGame.Extended.TextureAtlases;
 namespace ProjectAona.Test.UserInterface.GUIElements
 {
     /// <summary>
-    /// The menu button.
+    /// The task button.
     /// </summary>
-    public class MenuButton
+    public class TaskButton
     {
         private TextureRegion2D _texture;
 
@@ -28,13 +28,13 @@ namespace ProjectAona.Test.UserInterface.GUIElements
         public Rectangle Position { get { return _position; } set { _position = value; } }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuButton"/> class.
+        /// Initializes a new instance of the <see cref="TaskButton"/> class.
         /// </summary>
         /// <param name="texture">The texture.</param>
         /// <param name="font">The font.</param>
         /// <param name="menuText">The menu text.</param>
         /// <param name="spriteBatch">The sprite batch.</param>
-        public MenuButton(TextureRegion2D texture, SpriteFont font, string menuText, SpriteBatch spriteBatch)
+        public TaskButton(TextureRegion2D texture, SpriteFont font, string menuText, SpriteBatch spriteBatch)
         {
             _texture = texture;
             _font = font;
@@ -65,8 +65,10 @@ namespace ProjectAona.Test.UserInterface.GUIElements
         /// </summary>
         public void Draw()
         {
+            Vector2 textPosition = new Vector2(_position.X, _position.Y + _texture.Bounds.Height);
+
             _spriteBatch.Draw(_texture.Texture, _position, _texture.Bounds, Color.White);
-            _spriteBatch.DrawString(_font, _menuText, new Vector2(_position.X + 20, _position.Y + 10), Color.White);
+            _spriteBatch.DrawString(_font, _menuText, textPosition, Color.White);
         }
     }
 }

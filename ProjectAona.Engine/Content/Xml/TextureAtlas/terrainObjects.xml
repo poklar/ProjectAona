@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XnaContent>
+<Asset Type="System.Collections.Generic.Dictionary[System.String, Microsoft.Xna.Framework.Rectangle]">
+<Item><Key>bush</Key><Value>0 0 32 32</Value></Item>
+<Item><Key>coalOre</Key><Value>32 0 32 32</Value></Item>
+<Item><Key>dirt</Key><Value>0 32 32 32</Value></Item>
+<Item><Key>invalidSelection</Key><Value>32 32 32 32</Value></Item>
+<Item><Key>mapleTree</Key><Value>64 0 32 32</Value></Item>
+<Item><Key>oakTree</Key><Value>64 32 32 32</Value></Item>
+<Item><Key>redCross</Key><Value>96 0 32 32</Value></Item>
+<Item><Key>selection</Key><Value>96 32 32 32</Value></Item>
+<Item><Key>stockpile</Key><Value>0 64 32 32</Value></Item>
+<Item><Key>stockpileSelected</Key><Value>0 96 32 32</Value></Item>
+<Item><Key>wood</Key><Value>32 64 32 32</Value></Item>
+</Asset>
+</XnaContent>

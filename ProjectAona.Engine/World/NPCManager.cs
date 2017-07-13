@@ -5,6 +5,7 @@ using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Pathfinding;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.World.Items;
 using ProjectAona.Engine.World.NPC;
 using System;
 using System.Collections;
@@ -16,7 +17,7 @@ namespace ProjectAona.Engine.World
 {
     public class NPCManager
     {
-        private Dictionary<string, Minion> _minions;
+        private Dictionary<Minion, Texture2D> _minions;
 
         private Texture2D _minionTexture;
 
@@ -41,7 +42,7 @@ namespace ProjectAona.Engine.World
             _assetManager = assetManager;
             _spriteBatch = spriteBatch;
             _IDcounter = 0;
-            _minions = new Dictionary<string, Minion>();
+            _minions = new Dictionary<Minion, Texture2D>();
         }
 
         /// <summary>
@@ -50,7 +51,10 @@ namespace ProjectAona.Engine.World
         public void Initialize()
         {
             _minionTexture = _assetManager.NPCNormal;
-            SpawnMinion();
+            Texture2D text = _assetManager.NPCRanger;
+
+            SpawnMinion(96, 64, _minionTexture);
+            SpawnMinion(128, 96, text);
         }
 
         /// <summary>
@@ -60,7 +64,7 @@ namespace ProjectAona.Engine.World
         public void Update(GameTime gameTime)
         {
             if (_minions.Count != 0)
-                foreach (Minion minion in _minions.Values)
+                foreach (Minion minion in _minions.Keys)
                     minion.Update(gameTime);
         }
 
@@ -73,8 +77,8 @@ namespace ProjectAona.Engine.World
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, _camera.View);
 
             if (_minions.Count != 0)
-                foreach (Minion minion in _minions.Values)
-                    _spriteBatch.Draw(_minionTexture, minion.Position, Color.White);
+                foreach (var minion in _minions)
+                    _spriteBatch.Draw(minion.Value, minion.Key.Position, Color.White);
 
             _spriteBatch.End();
         }
@@ -82,15 +86,17 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Spawns the minion.
         /// </summary>
-        private void SpawnMinion()
+        private void SpawnMinion(int x, int y, Texture2D texture)
         {
             // TODO: Make this random/at the middle of the map
-            Tile tile = ChunkManager.TileAtWorldPosition(96, 64);
+            Tile tile = ChunkManager.TileAtWorldPosition(x, y);
             tile = EmptyTile(tile);
 
             Minion minion = new Minion(tile, _IDcounter.ToString());
             minion.MinionChanged += OnMinionChanged;
-            _minions.Add(_IDcounter.ToString(), minion);
+            minion.InventoryNeeded += OnPickUpInventory;
+            minion.RemoveInventory += OnRemoveInventory;
+            _minions.Add(minion, texture);
             _IDcounter++;
         }
 
@@ -114,6 +120,34 @@ namespace ProjectAona.Engine.World
 
             // Recall this function until an empty tile is found
             return EmptyTile(tile);
+        }
+
+        private void OnPickUpInventory(Minion minion)
+        {
+            if (minion.CurrentTile.Item != null)
+            {
+                List<IStackable> inventory = new List<IStackable>();
+
+                foreach (var item in minion.CurrentTile.Item)
+                    inventory.Add(item);
+
+                minion.Inventory.Add(inventory);
+                minion.CurrentTile.Item.Clear();
+            }
+
+            // TODO: Throw error, no inventory here
+        }
+
+        private void OnRemoveInventory(Minion minion)
+        {
+            // TODO: Assumes stockpile has enough space FIX IT
+
+            foreach (var inventory in minion.Inventory)
+            {
+                StockpileManager.AddItem(minion.CurrentTile.Stockpile, inventory);                
+                
+            }
+            minion.Inventory.Clear();
         }
 
         public static void MoveTo(Minion minion, Tile destinationTile)

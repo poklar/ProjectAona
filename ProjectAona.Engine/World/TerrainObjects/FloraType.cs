@@ -3,7 +3,7 @@
     public enum FloraType : byte
     {
         OakTree,
-        PoplarTree,
+        MapleTree,
         RasberryBush
     }
 }

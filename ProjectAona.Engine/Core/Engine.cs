@@ -8,9 +8,15 @@ using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Input;
 using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.Pathfinding;
+using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.UserInterface;
+using ProjectAona.Engine.UserInterface.IngameMenu;
+using ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu;
 using ProjectAona.Engine.World;
+using ProjectAona.Engine.World.Items;
+using ProjectAona.Engine.World.Items.Resources;
 using System;
+using System.Collections.Generic;
 
 namespace ProjectAona.Engine.Core
 {
@@ -80,13 +86,20 @@ namespace ProjectAona.Engine.Core
         private AssetManager _assetManager;
         private ChunkManager _chunkManager;
         private Camera _camera;
-        private TerrainManager _terrainManager;
-        private PlayingStateInterface _playingStateInterface;
-        private BuildMenuManager _buildMenuManager;
+        private TerrainManager _terrainManager;            
         private NPCManager _npcManager;
         private MouseManager _mouseManager;
         private JobManager _jobManager;
         private FrameRateCounter _frameRateCounter;
+        private StructureManager _structureManager;
+        private StorageManager _storageManager;
+        private ItemManager _itemManager;
+
+        private IngameUI _ingameUI;
+        private BuildMenuUI _buildMenuUI;
+        private StructureUI _structureUI;
+        private StorageUI _storageUI;
+
         private static Graph _graph;
         
         public Camera Camera { get { return _camera; } }
@@ -110,20 +123,34 @@ namespace ProjectAona.Engine.Core
 
             _mouseManager = new MouseManager(_camera);
 
-            _playingStateInterface = new PlayingStateInterface(Game, _assetManager, _spriteBatch);
-            _playingStateInterface.Initialize();
+            _ingameUI = new IngameUI(Game, _assetManager, _spriteBatch);
+            _ingameUI.Initialize();
+
+            _buildMenuUI = new BuildMenuUI(Game, _assetManager, _spriteBatch);
+            _buildMenuUI.Initialize();
+            
+            _structureUI = new StructureUI(Game, _assetManager, _spriteBatch, _buildMenuUI, _ingameUI);
+            _structureUI.Initialize();
+
+            _storageUI = new StorageUI(Game, _assetManager, _spriteBatch, _buildMenuUI, _ingameUI);
+            _storageUI.Initialize();
 
             _terrainManager = new TerrainManager(_spriteBatch, _camera, _assetManager);
             _chunkManager.Initialize();
 
             _jobManager = new JobManager(_terrainManager);
 
-            _buildMenuManager = new BuildMenuManager(_spriteBatch, _camera, _playingStateInterface, _assetManager, _terrainManager, _jobManager);
+            _structureManager = new StructureManager(_spriteBatch, _camera, _structureUI, _assetManager, _jobManager);
+            _storageManager = new StorageManager(_spriteBatch, _camera, _assetManager, _storageUI);
 
             _npcManager = new NPCManager(_camera, _assetManager, _spriteBatch);
             _npcManager.Initialize();
 
+            _itemManager = new ItemManager(_jobManager);
+
             _graph = new Graph();
+
+            StockpileManager stockpileManager = new StockpileManager();
         }
 
         /// <summary>
@@ -142,12 +169,20 @@ namespace ProjectAona.Engine.Core
         public void Update(GameTime gameTime)
         {
             _camera.Update(gameTime);
-            _buildMenuManager.Update(gameTime);
+            _structureManager.Update(gameTime);
+            _storageManager.Update(gameTime);
             _npcManager.Update(gameTime);
-            _playingStateInterface.Update(gameTime);
-            _jobManager.Update(gameTime);
+
+            _ingameUI.Update(gameTime);
+            _buildMenuUI.Update(gameTime);
+            _structureUI.Update(gameTime);
+            _storageUI.Update(gameTime);
+            
             _mouseManager.Update(gameTime);
             _frameRateCounter.Update(gameTime);
+
+            
+
         }
 
         /// <summary>
@@ -158,9 +193,17 @@ namespace ProjectAona.Engine.Core
         {
             _chunkManager.Draw(gameTime);
             _terrainManager.Draw(gameTime);
-            _buildMenuManager.Draw(gameTime);
+            _structureManager.Draw(gameTime);
+            _storageManager.Draw(gameTime);
             _npcManager.Draw(gameTime);
-            _playingStateInterface.Draw(gameTime);
+
+
+
+            _ingameUI.Draw(gameTime);
+            _buildMenuUI.Draw(gameTime);
+            _structureUI.Draw(gameTime);
+            _storageUI.Draw(gameTime);
+
             _frameRateCounter.Draw(gameTime);
         }
 

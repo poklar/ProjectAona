@@ -12,6 +12,7 @@ namespace ProjectAona.Engine.Jobs
         Building,
         Mining,
         Harvesting,
+        Inventorying,
         Idle
     }
 }

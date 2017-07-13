@@ -4,8 +4,10 @@ using ProjectAona.Engine.Chunks;
 using ProjectAona.Engine.Core;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
-using ProjectAona.Engine.UserInterface;
+using ProjectAona.Engine.UserInterface.IngameMenu;
+using ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu;
 using ProjectAona.Engine.World;
+using ProjectAona.Engine.World.Items.Resources;
 using ProjectAona.Engine.World.NPC;
 using ProjectAona.Engine.World.Selection;
 using System.Collections.Generic;
@@ -58,7 +60,7 @@ namespace ProjectAona.Engine.Input
                     SelectionInfo selection = SelectedTileInfo(GetWorldMousePosition());
 
                     if (selection != null)
-                        PlayingStateInterface.SelectedTileInfo(selection);
+                        IngameUI.SelectedTileInfo(selection);
                     else
                         _playerSelection = null;
 
@@ -123,7 +125,19 @@ namespace ProjectAona.Engine.Input
         /// </returns>
         public static bool IsMouseOverMenu()
         {
-            return PlayingStateInterface.IsMouseOverMenu();
+            if (IngameUI.IsMouseOverMenu())
+                return true;
+
+            if (BuildMenuUI.IsMouseOverMenu())
+                return true;
+
+            if (StructureUI.IsMouseOverMenu())
+                return true;
+
+            if (StorageUI.IsMouseOverMenu())
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -151,6 +165,22 @@ namespace ProjectAona.Engine.Input
 
                 if (tile.Wall != null)
                     selection.Entities.Add(tile.Wall);
+
+                if (tile.Stockpile != null)
+                    selection.Entities.Add(tile.Stockpile);
+
+                // TODO: whut
+                if (tile.Item.Count != 0)
+                {
+                    List<Material> matList = new List<Material>();
+                    if (tile.Item.FirstOrDefault().GetType() == typeof(Material))
+                    {
+                        foreach (var item in tile.Item)
+                            matList.Add(item as Material);
+                    }
+
+                    selection.Entities.Add(matList.FirstOrDefault());
+                }
 
                 return _playerSelection = selection;
             }

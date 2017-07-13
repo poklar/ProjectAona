@@ -3,11 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.TextureAtlases;
 using ProjectAona.Engine.Assets;
 using ProjectAona.Engine.Chunks;
+using ProjectAona.Engine.Common;
 using ProjectAona.Engine.Graphics;
+using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.World.Items;
 using ProjectAona.Engine.World.TerrainObjects;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 
 namespace ProjectAona.Engine.World
 {
@@ -21,6 +24,8 @@ namespace ProjectAona.Engine.World
         private static Dictionary<Vector2, Wall> _wallObjects;
 
         private TextureAtlas _wallsSelections;
+
+        private TextureAtlas _terrainObjects;
 
         private SpriteBatch _spriteBatch;
 
@@ -45,6 +50,7 @@ namespace ProjectAona.Engine.World
         public void LoadContent()
         {
             _wallsSelections = new TextureAtlas("wallsSelectionsTextureAtlas", _assetManager.WallsSelectionsTextureAtlas, _assetManager.WallsSelectionsTextureAtlasXML);
+            _terrainObjects = new TextureAtlas("terrainObjects", _assetManager.TerrainObjects, _assetManager.TerrainObjectsTextureAtlasXML);
         }
 
         /// <summary>
@@ -79,21 +85,24 @@ namespace ProjectAona.Engine.World
                         // Get the position from the tile
                         Tile tile = chunk.TileAt(x, y);
 
-                        if (tile.IsOccupied)
+                        if (tile.Wall != null)
                         {
-                            if (tile.Wall != null && tile.Blueprint == null)
+                            TextureRegion2D wallTexture = SelectWallSprite(tile.Wall);
+
+                            _spriteBatch.Draw(wallTexture.Texture, tile.Position, wallTexture.Bounds, Color.White);
+                        }
+
+                        if (tile.Flora != null)
+                            _spriteBatch.Draw(FloraTexture(tile.Flora.FloraType), tile.Position, Color.White);
+
+                        if (tile.Stockpile != null)
+                            _spriteBatch.Draw(_terrainObjects["stockpile"].Texture, tile.Position, _terrainObjects["stockpile"].Bounds, Color.White);
+
+                        if (tile.Blueprint != null)
+                        {
+                            if (tile.Blueprint.GetType() == typeof(Wall))
                             {
-                                TextureRegion2D wallTexture = SelectWallSprite(tile.Wall);
-
-                                _spriteBatch.Draw(wallTexture.Texture, tile.Position, wallTexture.Bounds, Color.White);
-                            }
-
-                            if (tile.Flora != null && tile.Blueprint == null)
-                                _spriteBatch.Draw(FloraTexture(tile.Flora.FloraType), tile.Position, Color.White);
-
-                            if (tile.Blueprint != null)
-                            {
-                                if (tile.Blueprint.GetType() == typeof(Wall))
+                                if (tile.Wall == null)
                                 {
                                     // TODO: THIS IS UNACCEPTABLE but I don't know any other way right now
                                     LinkedSprite ls = new Wall(tile.Position, LinkedSpriteType.Stockpile);
@@ -102,11 +111,17 @@ namespace ProjectAona.Engine.World
 
                                     _spriteBatch.Draw(wallTexture.Texture, tile.Position, wallTexture.Bounds, Color.White);
                                 }
+                                else
+                                    _spriteBatch.Draw(_terrainObjects["redCross"].Texture, tile.Position, _terrainObjects["redCross"].Bounds, Color.White);
                             }
                         }
-                        
-                        
-                    }
+                        if (tile.Item.Count != 0)
+                        {
+                            TextureRegion2D texture = ItemsTexture(tile.Item.FirstOrDefault().ItemName);
+
+                            _spriteBatch.Draw(texture.Texture, tile.Position, texture.Bounds, Color.White);
+                        }
+                    }      
                 }
             }
         }
@@ -155,7 +170,6 @@ namespace ProjectAona.Engine.World
                     tile.IsOccupied = true;
                     // Pass the wall object to the tile
                     tile.Wall = wall;
-                    tile.Blueprint = null;
                     tile.Enterability = EnterabilityType.Never;
 
                     // Add the wall object to the dictionary 
@@ -188,12 +202,13 @@ namespace ProjectAona.Engine.World
         /// <param name="wall">The wall.</param>
         /// <param name="tile">The tile.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public void RemoveWall(Tile tile)
+        public static void RemoveWall(Tile tile)
         {
             if (tile.IsOccupied && _wallObjects.ContainsKey(tile.Position))
             {
                 tile.Wall = null;
                 tile.IsOccupied = false;
+                tile.Enterability = EnterabilityType.IsEnterable;
                 _wallObjects.Remove(tile.Position);
             }
         }
@@ -207,7 +222,7 @@ namespace ProjectAona.Engine.World
         /// <returns>
         ///   <c>true</c> if [is tile occupied by wall]; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsTileOccupiedByWall(int x, int y)
+        public static bool IsTileOccupiedByWall(int x, int y)
         {
             Tile tile = ChunkManager.TileAtWorldPosition(x, y);
 
@@ -225,7 +240,7 @@ namespace ProjectAona.Engine.World
             return false;
         }
 
-        public bool IsTileOccupiedByOre(int x, int y)
+        public static bool IsTileOccupiedByOre(int x, int y)
         {
             Tile tile = ChunkManager.TileAtWorldPosition(x, y);
 
@@ -493,14 +508,25 @@ namespace ProjectAona.Engine.World
         /// <param name="type">The type.</param>
         /// <returns></returns>
         // TODO: REMOVE, a texture atlas will be added later
-        private Texture2D FloraTexture(FloraType type)
+        private TextureRegion2D FloraTexture(FloraType type)
         {
             // Get the corresponding texture
             switch (type)
             {
-                case FloraType.OakTree: return _assetManager.MapleTree;
-                case FloraType.PoplarTree: return _assetManager.OakTree;
-                case FloraType.RasberryBush: return _assetManager.Bush;
+                case FloraType.OakTree: return _terrainObjects["oakTree"];
+                case FloraType.MapleTree: return _terrainObjects["mapleTree"];
+                case FloraType.RasberryBush: return _terrainObjects["bush"];
+                default: return null;
+            }
+        }
+
+        private TextureRegion2D ItemsTexture(string name)
+        {
+            switch (name)
+            {
+                case GameText.Material.DIRT: return _terrainObjects["dirt"];
+                case GameText.Material.WOOD: return _terrainObjects["wood"];
+                case GameText.Material.COALORE: return _terrainObjects["coalOre"];
                 default: return null;
             }
         }

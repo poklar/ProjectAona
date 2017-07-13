@@ -76,19 +76,19 @@ namespace ProjectAona.Engine.Pathfinding
             if (Math.Abs(dX) + Math.Abs(dY) == 64)
             {
                 if (ChunkManager.TileAtWorldPosition((int)currentTile.Position.X - dX, (int)currentTile.Position.Y) != null &&
-                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X - dX, (int)currentTile.Position.Y).MovementCost == 0) // East/West is unwalkable
+                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X - dX, (int)currentTile.Position.Y).MovementCost >= 10000) // East/West is unwalkable
                     return true;
 
                 if (ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y + dY) != null &&
-                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y + dY).MovementCost == 0) // North/South is unwalkable
+                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y + dY).MovementCost >= 10000) // North/South is unwalkable
                     return true;
 
                 if (ChunkManager.TileAtWorldPosition((int)currentTile.Position.X + dX, (int)currentTile.Position.Y) != null &&
-                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X + dX, (int)currentTile.Position.Y).MovementCost == 0) // East/West is unwalkable
+                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X + dX, (int)currentTile.Position.Y).MovementCost >= 10000) // East/West is unwalkable
                     return true;
 
                 if (ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y - dY) != null &&
-                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y - dY).MovementCost == 0) // North/South is unwalkable
+                    ChunkManager.TileAtWorldPosition((int)currentTile.Position.X, (int)currentTile.Position.Y - dY).MovementCost >= 10000) // North/South is unwalkable
                     return true;
 
                 // If it reaches here, it's diagonal, but not clipping

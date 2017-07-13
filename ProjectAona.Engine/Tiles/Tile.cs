@@ -1,8 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using ProjectAona.Engine.Jobs;
+using ProjectAona.Engine.World;
+using ProjectAona.Engine.World.Items;
 using ProjectAona.Engine.World.NPC;
 using ProjectAona.Engine.World.TerrainObjects;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectAona.Engine.Tiles
 {
@@ -29,6 +32,10 @@ namespace ProjectAona.Engine.Tiles
 
         public EnterabilityType Enterability { get; set; }
 
+        public Stockpile Stockpile { get; set; }
+
+        public List<IStackable> Item { get; set; }
+
         public float MovementCost
         {
             // TODO: Tiletypes should have movement costs (ie paths)
@@ -38,7 +45,8 @@ namespace ProjectAona.Engine.Tiles
                     return _baseTileMovementCost * Wall.MovementCost;
                 else if (Flora != null)
                     return _baseTileMovementCost * Flora.MovementCost;
-                // TODO: Add furniture
+                else if (Item.Count != 0)
+                    return _baseTileMovementCost * Item.FirstOrDefault().MovementCost;
 
                 return _baseTileMovementCost;
             }
@@ -55,6 +63,7 @@ namespace ProjectAona.Engine.Tiles
             IsOccupied = false;
             Enterability = EnterabilityType.IsEnterable;
             Minions = new List<Minion>();
+            Item = new List<IStackable>();
         }
     }
 }

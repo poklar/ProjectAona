@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectAona.Engine.Jobs
+namespace ProjectAona.Engine.World.Selection
 {
-    public enum BlueprintType
+    public enum SelectionType
     {
         Wall,
-        Stockpile, // TODO: Remove
         Deconstruct,
+        Cancel,
         None
     }
 }

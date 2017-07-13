@@ -149,7 +149,7 @@ namespace ProjectAona.Engine.Chunks.Generators
             }
             else if (noise < 0.97 && noise > 0.94f)
             {
-                TerrainManager.AddFlora(FloraType.PoplarTree, tile);
+                TerrainManager.AddFlora(FloraType.MapleTree, tile);
             }
         }
 

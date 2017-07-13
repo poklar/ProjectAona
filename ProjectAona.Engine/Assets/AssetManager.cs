@@ -11,12 +11,6 @@ namespace ProjectAona.Engine.Assets
     /// </summary>
     public class AssetManager
     {
-        public Texture2D Bush { get; private set; }
-
-        public Texture2D MapleTree { get; private set; }
-
-        public Texture2D OakTree { get; private set; }
-
         public Texture2D LightGrassTile { get; private set; }
 
         public Texture2D DarkGrassTile { get; private set; }
@@ -36,16 +30,18 @@ namespace ProjectAona.Engine.Assets
         public Dictionary<string, Rectangle> MenuItemsTextureAtlasXML { get; private set; }
 
         public SpriteFont InGameFont { get; private set; }
-
-        public Texture2D Selection { get; private set; }
-
-        public Texture2D InvalidSelection { get; private set; }
         
         public Texture2D NPCNormal { get; private set; }
+
+        public Texture2D NPCRanger { get; private set; }
 
         public Texture2D NPCBusy { get; private set; }
 
         public Texture2D PathPixel { get; private set; }
+
+        public Texture2D TerrainObjects { get; private set; }
+
+        public Dictionary<string, Rectangle> TerrainObjectsTextureAtlasXML { get; private set; }
 
         private Game _game;
 
@@ -75,12 +71,8 @@ namespace ProjectAona.Engine.Assets
             try
             {
                 // Terrain
-                MapleTree = _game.Content.Load<Texture2D>("Textures\\Terrain\\mapleTree");
-                OakTree = _game.Content.Load<Texture2D>("Textures\\Terrain\\oakTree");
-                Bush = _game.Content.Load<Texture2D>("Textures\\Terrain\\bush");
                 WallsSelectionsTextureAtlas = _game.Content.Load<Texture2D>("Textures\\Terrain\\wallsSelections");
-                Selection = _game.Content.Load<Texture2D>("Textures\\Terrain\\selection");
-                InvalidSelection = _game.Content.Load<Texture2D>("Textures\\Terrain\\invalidSelection");
+                TerrainObjects = _game.Content.Load<Texture2D>("Textures\\Terrain\\terrainObjects");
 
                 // Tiles
                 LightGrassTile = _game.Content.Load<Texture2D>("Textures\\Tiles\\grass1Tile");
@@ -95,6 +87,7 @@ namespace ProjectAona.Engine.Assets
                 // Xml
                 WallsSelectionsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\wallsSelections");
                 MenuItemsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\menuItems");
+                TerrainObjectsTextureAtlasXML = _game.Content.Load<Dictionary<string, Rectangle>>("Xml\\TextureAtlas\\terrainObjects");
 
                 // User Interface
                 MenuItems = _game.Content.Load<Texture2D>("Textures\\UserInterface\\menuItems");
@@ -103,6 +96,7 @@ namespace ProjectAona.Engine.Assets
                 NPCNormal = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_normal");
                 NPCBusy = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPC_busy");
                 PathPixel = _game.Content.Load<Texture2D>("Textures\\NPCs\\pathPixel");
+                NPCRanger = _game.Content.Load<Texture2D>("Textures\\NPCs\\NPCRanger");
             }
             catch(Exception e)
             {

@@ -7,7 +7,7 @@ namespace ProjectAona.Engine.World.TerrainObjects
 {
     public class Wall : LinkedSprite, ISelectableInterface, IQueueable
     {
-        private const float _movementCost = 0;
+        private const float _movementCost = 100000; // TODO: Should have a movementspeed of 0, and fix it in A*
 
         public override Vector2 Position { get; set; }
 

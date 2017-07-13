@@ -2,6 +2,7 @@
 using ProjectAona.Engine.Jobs;
 using ProjectAona.Engine.Pathfinding;
 using ProjectAona.Engine.Tiles;
+using ProjectAona.Engine.World.Items;
 using ProjectAona.Engine.World.Selection;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,6 +25,8 @@ namespace ProjectAona.Engine.World.NPC
         public Vector2 Position { get { return _position; } set { _position = value; } }
 
         public List<JobType> Skills { get; set; }
+
+        public List<List<IStackable>> Inventory { get; set; }
 
         public Tile CurrentTile
         {
@@ -50,10 +53,15 @@ namespace ProjectAona.Engine.World.NPC
             }
         }
 
+        // Used for picking up inventory
+        public Queue<Tile> InBetweenLocations { get; set;  }
+
         public float Speed { get; private set; }
 
         public delegate void MinionHandler(Minion minion);
         public event MinionHandler MinionChanged;
+        public event MinionHandler InventoryNeeded;
+        public event MinionHandler RemoveInventory;
 
         public Minion(Tile tile, string id, float speed = 50)
         {
@@ -65,6 +73,8 @@ namespace ProjectAona.Engine.World.NPC
             _jobSearchCooldownInSec = 0;
             Skills = new List<JobType>();
             Skills.Add(JobType.Building);
+            Skills.Add(JobType.Inventorying);
+            Inventory = new List<List<IStackable>>();
         }
 
         public void Update(GameTime gameTime)
@@ -136,7 +146,7 @@ namespace ProjectAona.Engine.World.NPC
 
                 if (_job == null)
                 {
-                    _jobSearchCooldownInSec = 10;
+                    _jobSearchCooldownInSec = 2;
 
                     //DestinationTile = CurrentTile;
 
@@ -144,11 +154,23 @@ namespace ProjectAona.Engine.World.NPC
                 }
             }
 
-            if (CurrentTile == _job.Tile)
+            // There are no more required items left and minion is at destination
+            if (CurrentTile == _job.Destination)
             {
                 _job.DoJob((float)gameTime.ElapsedGameTime.TotalSeconds);
 
                 _jobSearchCooldownInSec = 0;
+            }
+            else if (CurrentTile == DestinationTile)
+            {
+                // Get the inventory
+                InventoryNeeded(this);
+
+                // If there is still needed inventory 
+                if (_job.RequiredItems.Count != 0 && _job.GetNextRequiredItem(Inventory) != null)
+                    DestinationTile = _job.GetNextRequiredItem(Inventory);
+                else
+                    DestinationTile = _job.Destination;
             }
         }
 
@@ -161,9 +183,13 @@ namespace ProjectAona.Engine.World.NPC
             if (_job == null)
                 return;
 
-            DestinationTile = _job.Tile;
+            if (_job.RequiredItems.Count != 0)// && _job.GetNextRequiredItem(Inventory) != null)
+                DestinationTile = _job.GetNextRequiredItem(Inventory);
+            else
+                DestinationTile = _job.Destination;
 
             _job.JobStopped += OnJobStopped;
+            _job.JobCancel += OnJobCancelled;
 
             _aStar = new AStar(CurrentTile, DestinationTile);
 
@@ -197,9 +223,26 @@ namespace ProjectAona.Engine.World.NPC
 
         private void OnJobStopped(Job job)
         {
+            if (job == _job)
+            {
+                if (_job.JobType == JobType.Inventorying && DestinationTile.Stockpile != null && Inventory.Count != 0)
+                    RemoveInventory(this);
+
+                _job.JobStopped -= OnJobStopped;
+                _job.JobCancel -= OnJobCancelled;
+
+                _job = null;
+            }
+        }
+
+        private void OnJobCancelled(Job job)
+        {
             job.JobStopped -= OnJobStopped;
+            job.JobCancel -= OnJobCancelled;
 
             _job = null;
+
+            AbandonJob();
         }
 
         public string GetName()
