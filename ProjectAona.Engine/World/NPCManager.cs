@@ -54,7 +54,7 @@ namespace ProjectAona.Engine.World
             Texture2D text = _assetManager.NPCRanger;
 
             SpawnMinion(96, 64, _minionTexture);
-            SpawnMinion(128, 96, text);
+            //SpawnMinion(128, 96, text);
         }
 
         /// <summary>
@@ -124,15 +124,29 @@ namespace ProjectAona.Engine.World
 
         private void OnPickUpInventory(Minion minion)
         {
-            if (minion.CurrentTile.Item != null)
+            if (minion.Job != null && minion.CurrentTile.Item.Count != 0)
             {
-                List<IStackable> inventory = new List<IStackable>();
+                foreach (var requiredItem in minion.Job.RequiredItems)
+                {
+                    // Get the number of required items
+                    var result = requiredItem.Where(item => item.ItemName == minion.CurrentTile.Item.FirstOrDefault().ItemName);
 
-                foreach (var item in minion.CurrentTile.Item)
-                    inventory.Add(item);
+                    if (result.Count() != 0)
+                    {
+                        List<IStackable> inventory = new List<IStackable>();
 
-                minion.Inventory.Add(inventory);
-                minion.CurrentTile.Item.Clear();
+                        // Add the inventory to the minion and remove it from the tile (hence the reverse counter)
+                        for (int i = result.Count() - 1; i >= 0; i--)
+                        {
+                            inventory.Add(minion.CurrentTile.Item[i]);
+                            minion.CurrentTile.Item.RemoveAt(0);
+                        }
+
+                        minion.Inventory.Add(inventory);
+
+                        return;
+                    }
+                }
             }
 
             // TODO: Throw error, no inventory here
@@ -143,11 +157,7 @@ namespace ProjectAona.Engine.World
             // TODO: Assumes stockpile has enough space FIX IT
 
             foreach (var inventory in minion.Inventory)
-            {
-                StockpileManager.AddItem(minion.CurrentTile.Stockpile, inventory);                
-                
-            }
-            minion.Inventory.Clear();
+                StockpileManager.AddItem(minion, inventory);
         }
 
         public static void MoveTo(Minion minion, Tile destinationTile)

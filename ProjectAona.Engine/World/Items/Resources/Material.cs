@@ -42,7 +42,7 @@ namespace ProjectAona.Engine.World.Items.Resources
 
         public string GetName()
         {
-            return ItemName;
+            return ItemName + " x" + Tile.Item.Count;
         }
 
         public class MaterialRoot

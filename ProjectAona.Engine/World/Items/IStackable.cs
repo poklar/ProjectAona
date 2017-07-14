@@ -9,7 +9,7 @@ namespace ProjectAona.Engine.World.Items
 {
     public interface IStackable
     {
-        //Tile Tile { get; set; }
+        Tile Tile { get; set; }
 
         string ItemName { get; set; }
 

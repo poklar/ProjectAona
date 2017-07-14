@@ -30,7 +30,7 @@ namespace ProjectAona.Engine.World.Items
 
             List<Material> materials = new List<Material>();
             Tile tile = ChunkManager.TileAtWorldPosition(0, 0);
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 20; i++)
             {
                 Material material = new Material(tile);
                 material.LoadMaterial("Wood");
@@ -61,6 +61,18 @@ namespace ProjectAona.Engine.World.Items
             }
 
             _unstackedItems.Add(tile.Item);
+
+            materials.Clear();
+            tile = ChunkManager.TileAtWorldPosition(128, 0);
+            for (int i = 0; i < 100; i++)
+            {
+                Material material = new Material(tile);
+                material.LoadMaterial("Wood");
+
+                tile.Item.Add(material);
+            }
+
+            _unstackedItems.Add(tile.Item);
             #endregion
         }
 
@@ -85,28 +97,37 @@ namespace ProjectAona.Engine.World.Items
         {
             if (_unstackedItems.Count != 0)
             {
+                List<List<IStackable>> toBeRemoved = new List<List<IStackable>>();
+
                 foreach (var items in _unstackedItems)
                 {
-                    List<List<IStackable>> inv = new List<List<IStackable>>();
+                    KeyValuePair<Tile, int> destination = StockpileManager.ReserveLocation(stockpile, items);
 
-                    inv.Add(items);
-
-                    Tile tile = StockpileManager.AvailabeLocation(stockpile, items);
-
-                    if (tile != null)
+                    if (destination.Key != null)
                     {
-                        _jobManager.CreateJob(null, tile, inv);
-                        //_unstackedItems.Remove(items);
+                        List<List<IStackable>> requiredInventory = new List<List<IStackable>>();
+
+                        // Create a copy for the job, so nothing will happen to when the item gets picked up by the minion
+                        List<IStackable> itemsCopy = new List<IStackable>();
+
+                        for (int i = 0; i < destination.Value; i++)
+                            itemsCopy.Add(items[i]);
+
+                        requiredInventory.Add(itemsCopy);
+
+                        _jobManager.CreateJob(null, destination.Key, requiredInventory);
+
+                        if (destination.Value == items.Count)
+                            toBeRemoved.Add(items);
                     }
-
-
                 }
 
-                // TODO: LOL remove this pls
-                _unstackedItems.Clear();
+                if (toBeRemoved.Count != 0)
+                {
+                    for (int i = 0; i < toBeRemoved.Count; i++)
+                        _unstackedItems.Remove(toBeRemoved[i]);
+                }
             }
         }
-
-
     }
 }

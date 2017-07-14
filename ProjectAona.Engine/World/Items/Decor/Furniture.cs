@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ProjectAona.Engine.World.Items.Decor
 {
-    public class Furniture : IStackable, ISelectableInterface, IQueueable 
+    public class Furniture : ISelectableInterface, IQueueable 
     {
         public string ItemName { get; set; }
 

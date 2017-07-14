@@ -57,22 +57,25 @@ namespace ProjectAona.Engine.Jobs
 
         public void CreateJob(IQueueable item, Tile destination, List<List<IStackable>> items)
         {
-            JobType jobType = JobType.Idle;
+            if (destination != null)
+            {
+                JobType jobType = JobType.Idle;
 
-            if (destination.Stockpile != null)
-                jobType = JobType.Inventorying;
+                if (destination.Stockpile != null)
+                    jobType = JobType.Inventorying;
 
-            Job job = new Job(destination, jobType, 0);
-            job.JobObjectPrototype = item;
-            job.JobComplete += OnJobComplete;
-            job.JobCancel += OnJobCancel;
-            
-            if (items.Count != 0)
-                job.RequiredItems = items;
+                Job job = new Job(destination, jobType, 0);
+                job.JobObjectPrototype = item;
+                job.JobComplete += OnJobComplete;
+                job.JobCancel += OnJobCancel;
 
-            _jobs.Add(job, item);
+                if (items.Count != 0)
+                    job.RequiredItems = items;
 
-            JobQueue.Enqueue(job);
+                _jobs.Add(job, item);
+
+                JobQueue.Enqueue(job);
+            }
         }
 
 
