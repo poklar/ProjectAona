@@ -55,7 +55,7 @@ namespace ProjectAona.Engine.Jobs
             JobQueue.Enqueue(job);
         }
 
-        public void CreateJob(IQueueable item, Tile destination, List<List<IStackable>> items)
+        public void CreateJob(IQueueable item, Tile destination, Dictionary<IStackable, int> items)
         {
             if (destination != null)
             {

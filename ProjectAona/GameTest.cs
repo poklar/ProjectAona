@@ -59,7 +59,7 @@ namespace ProjectAona.Test
             // Start the engine
             _engine.Run();
 
-            IsFixedTimeStep = false; // TODO: Remove?
+            //IsFixedTimeStep = false; // TODO: Remove?
 
             base.Initialize();
         }

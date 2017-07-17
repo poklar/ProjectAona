@@ -98,6 +98,7 @@
     <Compile Include="World\NPC\Minion.cs" />
     <Compile Include="World\Selection\ISelectableInterface.cs" />
     <Compile Include="World\Selection\SelectCancelJobArea.cs" />
+    <Compile Include="World\Selection\SelectDeconstructStockpile.cs" />
     <Compile Include="World\Selection\SelectedAreaRemoval.cs" />
     <Compile Include="World\Selection\SelectionType.cs" />
     <Compile Include="World\Selection\SelectWallArea.cs" />

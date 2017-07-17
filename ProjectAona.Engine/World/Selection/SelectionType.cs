@@ -9,6 +9,7 @@ namespace ProjectAona.Engine.World.Selection
     public enum SelectionType
     {
         Wall,
+        Storage,
         Deconstruct,
         Cancel,
         None

@@ -14,7 +14,7 @@ namespace ProjectAona.Engine.Tiles
     /// </summary>
     public class Tile
     {
-        private const float _baseTileMovementCost = 1;
+        private float _baseTileMovementCost = 1;
 
         public Vector2 Position { get; set; }
 
@@ -50,6 +50,11 @@ namespace ProjectAona.Engine.Tiles
 
                 return _baseTileMovementCost;
             }
+
+            set
+            {
+                _baseTileMovementCost = value;
+            }
         }
 
         /// <summary>
@@ -64,6 +69,21 @@ namespace ProjectAona.Engine.Tiles
             Enterability = EnterabilityType.IsEnterable;
             Minions = new List<Minion>();
             Item = new List<IStackable>();
+        }
+
+        public Tile(Tile other)
+        {
+            Position = other.Position;
+            TileType = other.TileType;
+            IsOccupied = other.IsOccupied;
+            Flora = other.Flora;
+            Wall = other.Wall;
+            Minions = other.Minions;
+            Blueprint = other.Blueprint;
+            Enterability = other.Enterability;
+            Stockpile = other.Stockpile;
+            Item = other.Item;
+            MovementCost = other.MovementCost;
         }
     }
 }

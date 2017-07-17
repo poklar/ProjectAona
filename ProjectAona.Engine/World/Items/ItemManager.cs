@@ -23,6 +23,7 @@ namespace ProjectAona.Engine.World.Items
             _jobManager = jobManager;
             _unstackedItems = new List<List<IStackable>>();
             StockpileManager.StockpileCreated += OnStockpileCreated;
+            StockpileManager.StockpileDeleted += OnStockpileDeleted;
 
             #region TEST ITEMS
             // TODO: REMOVE
@@ -64,7 +65,7 @@ namespace ProjectAona.Engine.World.Items
 
             materials.Clear();
             tile = ChunkManager.TileAtWorldPosition(128, 0);
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 160; i++)
             {
                 Material material = new Material(tile);
                 material.LoadMaterial("Wood");
@@ -105,15 +106,12 @@ namespace ProjectAona.Engine.World.Items
 
                     if (destination.Key != null)
                     {
-                        List<List<IStackable>> requiredInventory = new List<List<IStackable>>();
+                        Dictionary<IStackable, int> requiredInventory = new Dictionary<IStackable, int>();
 
                         // Create a copy for the job, so nothing will happen to when the item gets picked up by the minion
-                        List<IStackable> itemsCopy = new List<IStackable>();
+                        IStackable itemCopy = items.FirstOrDefault();
 
-                        for (int i = 0; i < destination.Value; i++)
-                            itemsCopy.Add(items[i]);
-
-                        requiredInventory.Add(itemsCopy);
+                        requiredInventory.Add(itemCopy, destination.Value);
 
                         _jobManager.CreateJob(null, destination.Key, requiredInventory);
 
@@ -128,6 +126,14 @@ namespace ProjectAona.Engine.World.Items
                         _unstackedItems.Remove(toBeRemoved[i]);
                 }
             }
+        }
+
+        private void OnStockpileDeleted(Stockpile stockpile)
+        {
+            List<List<IStackable>> items = new List<List<IStackable>>(stockpile.Stack.Values);
+
+            for (int i = 0; i < stockpile.Stack.Count; i++)
+                _unstackedItems.Add(items[i]);
         }
     }
 }

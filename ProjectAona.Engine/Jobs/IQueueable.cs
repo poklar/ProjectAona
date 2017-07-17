@@ -1,4 +1,6 @@
-﻿namespace ProjectAona.Engine.Jobs
+﻿using ProjectAona.Engine.Tiles;
+
+namespace ProjectAona.Engine.Jobs
 {
     public interface IQueueable
     {

@@ -103,7 +103,7 @@ namespace ProjectAona.Engine.World
         /// <summary>
         /// Draws this instance.
         /// </summary>
-        public void Draw()
+        public virtual void Draw()
         {
             // If there isn't any tile selected yet
             if (!_tileSelected)

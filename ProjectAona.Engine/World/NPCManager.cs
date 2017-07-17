@@ -128,23 +128,29 @@ namespace ProjectAona.Engine.World
             {
                 foreach (var requiredItem in minion.Job.RequiredItems)
                 {
-                    // Get the number of required items
-                    var result = requiredItem.Where(item => item.ItemName == minion.CurrentTile.Item.FirstOrDefault().ItemName);
-
-                    if (result.Count() != 0)
+                    if (minion.Inventory.Count != 0)
                     {
-                        List<IStackable> inventory = new List<IStackable>();
-
-                        // Add the inventory to the minion and remove it from the tile (hence the reverse counter)
-                        for (int i = result.Count() - 1; i >= 0; i--)
+                        foreach (var inventory in minion.Inventory.ToArray())
                         {
-                            inventory.Add(minion.CurrentTile.Item[i]);
-                            minion.CurrentTile.Item.RemoveAt(0);
+
+                            if (requiredItem.Key.ItemName == inventory.Key.ItemName)
+                            {
+                                int inventoryValue = inventory.Value;
+
+                                minion.Inventory.Remove(inventory.Key);
+                                minion.Inventory.Add(requiredItem.Key, inventoryValue + requiredItem.Value);
+
+                                for (int i = requiredItem.Value - 1; i >= 0; i--)
+                                    minion.CurrentTile.Item.RemoveAt(0);
+                            }
                         }
+                    }
+                    else
+                    {                        
+                        minion.Inventory.Add(requiredItem.Key, requiredItem.Value);
 
-                        minion.Inventory.Add(inventory);
-
-                        return;
+                        for (int i = requiredItem.Value - 1; i >= 0; i--)
+                            minion.CurrentTile.Item.RemoveAt(0);
                     }
                 }
             }
@@ -153,11 +159,8 @@ namespace ProjectAona.Engine.World
         }
 
         private void OnRemoveInventory(Minion minion)
-        {
-            // TODO: Assumes stockpile has enough space FIX IT
-
-            foreach (var inventory in minion.Inventory)
-                StockpileManager.AddItem(minion, inventory);
+        {            
+            StockpileManager.AddItem(minion);
         }
 
         public static void MoveTo(Minion minion, Tile destinationTile)

@@ -26,7 +26,7 @@ namespace ProjectAona.Engine.World.NPC
 
         public List<JobType> Skills { get; set; }
 
-        public List<List<IStackable>> Inventory { get; set; }
+        public Dictionary<IStackable, int> Inventory { get; set; }
 
         public Job Job { get; private set; }
 
@@ -76,7 +76,7 @@ namespace ProjectAona.Engine.World.NPC
             Skills = new List<JobType>();
             Skills.Add(JobType.Building);
             Skills.Add(JobType.Inventorying);
-            Inventory = new List<List<IStackable>>();
+            Inventory = new Dictionary<IStackable, int>();
         }
 
         public void Update(GameTime gameTime)
@@ -185,7 +185,7 @@ namespace ProjectAona.Engine.World.NPC
             if (Job == null)
                 return;
 
-            if (Job.RequiredItems.Count != 0)// && _job.GetNextRequiredItem(Inventory) != null)
+            if (Job.RequiredItems.Count != 0 && Job.GetNextRequiredItem(Inventory) != null)
                 DestinationTile = Job.GetNextRequiredItem(Inventory);
             else
                 DestinationTile = Job.Destination;

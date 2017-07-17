@@ -9,6 +9,7 @@ using ProjectAona.Engine.Core;
 using ProjectAona.Engine.Graphics;
 using ProjectAona.Engine.Tiles;
 using ProjectAona.Engine.World;
+using ProjectAona.Engine.World.Selection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,10 @@ namespace ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu
 
         private SelectionArea _selectionArea;
 
+        private SelectDeconstructStockpile _selectDeconstructStockpile;
+
+        private SelectionType _selectionType;
+
         public StorageManager(SpriteBatch spriteBatch, Camera camera, AssetManager assetManager, StorageUI storageUI)
         {
             _spriteBatch = spriteBatch;
@@ -39,18 +44,27 @@ namespace ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu
             _storageUI = storageUI;
             _storageUI.TaskMenuClicked += OnTaskClicked;
             _selectedElement = "";
+            _selectionType = SelectionType.None;
 
             // TODO: Stockpile needs to get its own class where it'll be checked if the tile is a stockpile
             _selectionArea = new SelectionArea(_assetManager, _camera, _spriteBatch);
             _selectionArea.SelectionSelected += OnAreaSelected;
             _selectionArea.CancelledSelection += OnSelectionCancelled;
+
+            _selectDeconstructStockpile = new SelectDeconstructStockpile(_assetManager, _camera, _spriteBatch);
+            _selectDeconstructStockpile.DeconstructionSelected += OnDeconstructSelected;
+            _selectDeconstructStockpile.CancelledSelection += OnSelectionCancelled;
         }
 
         public void Update(GameTime gameTime)
         {
             if (GameState.State == GameStateType.SELECTING)
             {
-                _selectionArea.Update();
+                switch (_selectionType)
+                {
+                    case SelectionType.Storage: _selectionArea.Update(); break;
+                    case SelectionType.Deconstruct: _selectDeconstructStockpile.Update(); break;
+                }
             }
         }
 
@@ -60,7 +74,11 @@ namespace ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu
             {
                 _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, _camera.View);
 
-                _selectionArea.Draw();
+                switch (_selectionType)
+                {
+                    case SelectionType.Storage: _selectionArea.Draw(); break;
+                    case SelectionType.Deconstruct: _selectDeconstructStockpile.Draw(); break;
+                }
 
                 _spriteBatch.End();
             }            
@@ -74,7 +92,16 @@ namespace ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu
 
                 _selectedElement = element;
 
-                _selectionArea.SelectArea(mouseState);
+                if (element == GameText.BuildMenu.STORAGEAREA)
+                {
+                    _selectionType = SelectionType.Storage;
+                    _selectionArea.SelectArea(mouseState);
+                }
+                else
+                {
+                    _selectionType = SelectionType.Deconstruct;
+                    _selectDeconstructStockpile.SelectArea(mouseState);
+                }
             }
             else if (element == GameText.BuildMenu.STORAGECRATE)
             {
@@ -104,12 +131,23 @@ namespace ProjectAona.Engine.UserInterface.IngameMenu.BuildMenu
             }
 
             _selectedElement = "";
+            _selectionType = SelectionType.None;
+            GameState.State = GameStateType.PLAYING;
+        }
+
+        private void OnDeconstructSelected(Tile tile)
+        {
+            StockpileManager.RemoveStockpile(tile);
+
+            _selectedElement = "";
+            _selectionType = SelectionType.None;
             GameState.State = GameStateType.PLAYING;
         }
 
         private void OnSelectionCancelled()
         {
             _selectedElement = "";
+            _selectionType = SelectionType.None;
             GameState.State = GameStateType.PLAYING;
         }
 

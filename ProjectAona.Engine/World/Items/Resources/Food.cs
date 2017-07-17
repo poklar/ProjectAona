@@ -19,6 +19,25 @@ namespace ProjectAona.Engine.World.Items.Resources
 
         public int MaxStackSize { get; set; }
 
+        public Food(Tile tile)
+        {
+            Tile = tile;
+        }
+        
+        // Copy constructor
+        protected Food(IStackable other)
+        {
+            Tile = other.Tile;
+            ItemName = other.ItemName;
+            MovementCost = other.MovementCost;
+            MaxStackSize = other.MaxStackSize;
+        }
+
+        public IStackable Clone()
+        {
+            return new Food(this);
+        }
+
         public string GetName()
         {
             return "";

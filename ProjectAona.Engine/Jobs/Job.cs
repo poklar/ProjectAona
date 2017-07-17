@@ -14,9 +14,7 @@ namespace ProjectAona.Engine.Jobs
         public Tile Destination { get; private set; }
 
         // Item + itemnumber
-        // TODO: What if the tile condition changes
-        // TODO: Reserve the IStackable?
-        public List<List<IStackable>> RequiredItems { get; set; }
+        public Dictionary<IStackable, int> RequiredItems { get; set; }
 
         public JobType JobType { get; private set; }
 
@@ -37,7 +35,7 @@ namespace ProjectAona.Engine.Jobs
             JobType = jobType;
             _jobTimer = jobTimer;
             _jobRepeats = false;
-            RequiredItems = new List<List<IStackable>>();
+            RequiredItems = new Dictionary<IStackable, int>();
         }
 
         public void DoJob(float workTime)
@@ -60,47 +58,59 @@ namespace ProjectAona.Engine.Jobs
             JobCancel(this);
         }
 
-        public Tile GetNextRequiredItem(List<List<IStackable>> items)
+        public Tile GetNextRequiredItem(Dictionary<IStackable, int> items)
         {
             if (RequiredItems.Count == 0)
                 return null;
 
             foreach (var reqiredItem in RequiredItems)
             {
-                if (reqiredItem.Count != 0 && items.Count != 0)
+                if (items.Count != 0)
                 {
                     foreach (var minionItem in items)
                     {
-                        if (minionItem.Count != 0)
+
+                        if (reqiredItem.Key.GetType() == typeof(Material) &&
+                            minionItem.Key.GetType() == typeof(Material) &&
+                            reqiredItem.Key.ItemName == minionItem.Key.ItemName &&
+                            reqiredItem.Value > minionItem.Value)
                         {
-                            if (reqiredItem.FirstOrDefault().GetType() == typeof(Material) &&
-                                minionItem.FirstOrDefault().GetType() == typeof(Material) &&
-                                reqiredItem.Count > minionItem.Count)
+                            Material material = reqiredItem.Key as Material;
+                            return material.Tile;
+                        }
+                        else if (reqiredItem.Key.GetType() == typeof(Food) &&
+                                    minionItem.Key.GetType() == typeof(Food) &&
+                                    reqiredItem.Value > minionItem.Value)
+                        {
+                            Food food = reqiredItem.Key as Food;
+                            return food.Tile;
+                        }
+                        // TODO: Add furniture 
+                        else if (reqiredItem.Value != minionItem.Value)
+                        {
+                            if (reqiredItem.Key.GetType() == typeof(Material))
                             {
-                                Material material = minionItem.FirstOrDefault() as Material;
+                                Material material = reqiredItem.Key as Material;
                                 return material.Tile;
                             }
-                            else if (reqiredItem.FirstOrDefault().GetType() == typeof(Food) &&
-                                        minionItem.FirstOrDefault().GetType() == typeof(Food) &&
-                                        reqiredItem.Count > minionItem.Count)
+                            else if (reqiredItem.Key.GetType() == typeof(Food))
                             {
-                                Food food = minionItem.FirstOrDefault() as Food;
+                                Food food = reqiredItem.Key as Food;
                                 return food.Tile;
                             }
-                            // TODO: Add furniture     
                         }
                     }
                 }
                 else
                 {
-                    if (reqiredItem.FirstOrDefault().GetType() == typeof(Material))
+                    if (reqiredItem.Key.GetType() == typeof(Material))
                     {
-                        Material material = reqiredItem.FirstOrDefault() as Material;
+                        Material material = reqiredItem.Key as Material;
                         return material.Tile;
                     }
-                    else if (reqiredItem.FirstOrDefault().GetType() == typeof(Food))
+                    else if (reqiredItem.Key.GetType() == typeof(Food))
                     {
-                        Food food = reqiredItem.FirstOrDefault() as Food;
+                        Food food = reqiredItem.Key as Food;
                         return food.Tile;
                     }
                 }

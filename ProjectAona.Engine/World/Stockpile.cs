@@ -24,27 +24,9 @@ namespace ProjectAona.Engine.World
             {
                 Stack.Add(tiles[i], new List<IStackable>());
                 ReservedItemCounter.Add(tiles[i], 0);
+                ReservedItem.Add(tiles[i], null);
             }
         }
-
-        public void AddItem(Tile tile, IStackable item)
-        {
-            // Check if there already is an item type in the array
-        }
-
-        public void RemoveItem(Tile tile, IStackable item)
-        {
-
-        }
-
-        public int MaxStockpileItemValue(IStackable item)
-        {
-
-
-            return 0;
-        }
-
-
 
         public string GetName()
         {

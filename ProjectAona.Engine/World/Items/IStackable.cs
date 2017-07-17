@@ -16,5 +16,7 @@ namespace ProjectAona.Engine.World.Items
         int MovementCost { get; set; }
 
         int MaxStackSize { get; set; }
+
+        IStackable Clone();
     }
 }
